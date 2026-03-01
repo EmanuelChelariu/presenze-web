@@ -1,46 +1,52 @@
 import { getServerSession } from "next-auth";
 import connectDB from "@/lib/mongodb";
 import Employee from "@/models/Employee";
-import Company from "@/models/Company";
+import "@/models/Company";
 
-// GET - lista dipendenti
-export async function GET(req) {
+export async function GET() {
   const session = await getServerSession();
   if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
 
   await connectDB();
   const employees = await Employee.find({ active: true })
     .populate("companyId", "name")
-    .sort({ surname: 1, name: 1 });
+    .sort({ lastName: 1, firstName: 1 });
 
   return Response.json(employees);
 }
 
-// POST - crea dipendente
 export async function POST(req) {
   const session = await getServerSession();
   if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
 
   const body = await req.json();
-  const { name, surname, badgeId, phone, companyId } = body;
+  const {
+    firstName, lastName, badgeId, phone, email,
+    iban, role, companyId, dailyRate, overtimeRate,
+    dailyContribution, active,
+  } = body;
 
-  if (!name || !surname || !badgeId || !companyId) {
+  if (!firstName || !lastName || !badgeId || !companyId) {
     return Response.json({ error: "Campi obbligatori mancanti" }, { status: 400 });
   }
 
   await connectDB();
 
   const existing = await Employee.findOne({ badgeId: badgeId.toUpperCase() });
-  if (existing) {
-    return Response.json({ error: "Badge già esistente" }, { status: 400 });
-  }
+  if (existing) return Response.json({ error: "Badge già esistente" }, { status: 400 });
 
   const employee = await Employee.create({
-    name,
-    surname,
+    firstName, lastName,
+    fullName: `${firstName} ${lastName}`.trim(),
     badgeId: badgeId.toUpperCase(),
-    phone: phone || "",
+    phone: phone || "", email: email || "",
+    iban: iban || "", role: role || "",
     companyId,
+    dailyRate: Number(dailyRate) || 0,
+    overtimeRate: Number(overtimeRate) || 0,
+    dailyContribution: Number(dailyContribution) || 0,
+    active: active !== false,
+    ratesEffectiveFrom: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
   });
 
   return Response.json(employee, { status: 201 });
