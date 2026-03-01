@@ -168,15 +168,15 @@ export default function RimborsiPage() {
           ) : rimborsi.length === 0 ? (
             <p className="text-center text-gray-400 py-8">Nessun rimborso per questo mese</p>
           ) : (
-            <table className="w-full">
+            <table className="w-full table-fixed">
               <thead>
                 <tr className="border-b bg-gray-50 text-xs text-gray-500">
-                  <th className="text-left px-4 py-2">Data</th>
-                  <th className="text-left px-4 py-2">Dipendente</th>
-                  <th className="text-left px-4 py-2">Cantiere</th>
-                  <th className="text-left px-4 py-2">Note</th>
-                  <th className="text-right px-4 py-2">Importo</th>
-                  <th className="px-4 py-2"></th>
+                  <th className="text-left px-4 py-2 w-[12%]">Data</th>
+                  <th className="text-left px-4 py-2 w-[20%]">Dipendente</th>
+                  <th className="text-left px-4 py-2 w-[16%]">Cantiere</th>
+                  <th className="text-left px-4 py-2 w-[20%]">Note</th>
+                  <th className="text-right px-4 py-2 w-[14%]">Importo</th>
+                  <th className="text-right px-4 py-2 w-[18%]"></th>
                 </tr>
               </thead>
               <tbody>
@@ -185,12 +185,12 @@ export default function RimborsiPage() {
                     <td className="px-4 py-3 text-sm text-gray-600">
                       {new Date(r.date).toLocaleDateString("it-IT")}
                     </td>
-                    <td className="px-4 py-3 font-medium text-gray-800">{r.employeeName}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{r.siteName || "—"}</td>
+                    <td className="px-4 py-3 font-medium text-gray-900 truncate">{r.employeeName}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 truncate">{r.siteName || "—"}</td>
                     <td className="px-4 py-3 text-sm text-gray-500">
                       {editId === r._id ? (
                         <input value={editNote} onChange={e => setEditNote(e.target.value)} className="border rounded px-2 py-1 text-sm w-full" />
-                      ) : r.note || "—"}
+                      ) : <span className="truncate block">{r.note || "—"}</span>}
                     </td>
                     <td className="px-4 py-3 text-right font-semibold">
                       {editId === r._id ? (
@@ -201,15 +201,15 @@ export default function RimborsiPage() {
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-3 flex gap-2 justify-end">
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
                       {editId === r._id ? (
                         <>
-                          <button onClick={() => handleSaveEdit(r._id)} className="text-sm text-green-600 hover:underline">Salva</button>
+                          <button onClick={() => handleSaveEdit(r._id)} className="text-sm text-green-600 hover:underline mr-3">Salva</button>
                           <button onClick={() => setEditId(null)} className="text-sm text-gray-400 hover:underline">Annulla</button>
                         </>
                       ) : (
                         <>
-                          <button onClick={() => { setEditId(r._id); setEditAmount(r.amount); setEditNote(r.note || ""); }} className="text-sm text-blue-600 hover:underline">Modifica</button>
+                          <button onClick={() => { setEditId(r._id); setEditAmount(r.amount); setEditNote(r.note || ""); }} className="text-sm text-blue-600 hover:underline mr-3">Modifica</button>
                           <button onClick={() => handleDelete(r._id)} className="text-sm text-red-500 hover:underline">Elimina</button>
                         </>
                       )}

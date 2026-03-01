@@ -45,7 +45,7 @@ export default function CantieriPage() {
           </div>
           <button
             onClick={() => router.push("/cantieri/nuovo")}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+            className="bg-black text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-800 transition"
           >
             + Aggiungi
           </button>
@@ -58,7 +58,7 @@ export default function CantieriPage() {
             placeholder="Cerca per nome, committente, indirizzo..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-black transition"
           />
           <select
             value={filtro}
@@ -76,23 +76,23 @@ export default function CantieriPage() {
           <p className="text-center text-gray-500 py-12">Nessun cantiere trovato</p>
         ) : (
           <div className="bg-white rounded-xl shadow overflow-hidden">
-            <table className="w-full">
+            <table className="w-full table-fixed">
               <thead className="bg-gray-50 border-b">
                 <tr>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Cantiere</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Committente</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Indirizzo</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Inizio</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Stato</th>
-                  <th className="px-4 py-3"></th>
+                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600 w-[24%]">Cantiere</th>
+                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600 w-[17%]">Committente</th>
+                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600 w-[20%]">Indirizzo</th>
+                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600 w-[10%]">Inizio</th>
+                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600 w-[11%]">Stato</th>
+                  <th className="text-right px-4 py-3 w-[18%]"></th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((site, i) => (
                   <tr key={site._id} className={`border-b last:border-0 ${i % 2 === 0 ? "" : "bg-gray-50"}`}>
-                    <td className="px-4 py-3 font-medium text-gray-800">{site.name}</td>
-                    <td className="px-4 py-3 text-gray-600 text-sm">{site.committente || "—"}</td>
-                    <td className="px-4 py-3 text-gray-600 text-sm">{site.address || "—"}</td>
+                    <td className="px-4 py-3 font-medium text-gray-900 truncate">{site.name}</td>
+                    <td className="px-4 py-3 text-gray-600 text-sm truncate">{site.committente || "—"}</td>
+                    <td className="px-4 py-3 text-gray-600 text-sm truncate">{site.address || "—"}</td>
                     <td className="px-4 py-3 text-gray-600 text-sm">
                       {site.startDate ? new Date(site.startDate).toLocaleDateString("it-IT") : "—"}
                     </td>
@@ -101,10 +101,10 @@ export default function CantieriPage() {
                         {site.operativo ? "Operativo" : "Chiuso"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 flex gap-2 justify-end">
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
                       <button
                         onClick={() => router.push(`/cantieri/${site._id}`)}
-                        className="text-sm text-blue-600 hover:underline"
+                        className="text-sm text-blue-600 hover:underline mr-3"
                       >
                         Modifica
                       </button>

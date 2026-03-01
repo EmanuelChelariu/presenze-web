@@ -16,7 +16,7 @@ export default function DipendentiPage() {
   }, []);
 
   const filtered = employees.filter((e) =>
-    `${e.name} ${e.surname} ${e.badgeId} ${e.companyId?.name}`
+    `${e.firstName} ${e.lastName} ${e.fullName} ${e.badgeId} ${e.companyId?.name}`
       .toLowerCase()
       .includes(search.toLowerCase())
   );
@@ -40,7 +40,7 @@ export default function DipendentiPage() {
           </div>
           <button
             onClick={() => router.push("/dipendenti/nuovo")}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+            className="bg-black text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-800 transition"
           >
             + Aggiungi
           </button>
@@ -52,7 +52,7 @@ export default function DipendentiPage() {
           placeholder="Cerca per nome, badge, azienda..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4 bg-white focus:outline-none focus:ring-2 focus:ring-black transition"
         />
 
         {/* Lista */}
@@ -62,33 +62,33 @@ export default function DipendentiPage() {
           <p className="text-center text-gray-500 py-12">Nessun dipendente trovato</p>
         ) : (
           <div className="bg-white rounded-xl shadow overflow-hidden">
-            <table className="w-full">
+            <table className="w-full table-fixed">
               <thead className="bg-gray-50 border-b">
                 <tr>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Nome</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Badge</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Azienda</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Telefono</th>
-                  <th className="px-4 py-3"></th>
+                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600 w-[30%]">Nome</th>
+                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600 w-[15%]">Badge</th>
+                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600 w-[22%]">Azienda</th>
+                  <th className="text-left px-4 py-3 text-sm font-medium text-gray-600 w-[15%]">Telefono</th>
+                  <th className="text-right px-4 py-3 w-[18%]"></th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((emp, i) => (
                   <tr key={emp._id} className={`border-b last:border-0 ${i % 2 === 0 ? "" : "bg-gray-50"}`}>
-                    <td className="px-4 py-3 font-medium text-gray-800">
-                      {emp.surname} {emp.name}
+                    <td className="px-4 py-3 font-medium text-gray-900 truncate">
+                      {emp.lastName} {emp.firstName}
                     </td>
                     <td className="px-4 py-3">
                       <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-sm font-mono">
                         {emp.badgeId}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-600 text-sm">{emp.companyId?.name}</td>
+                    <td className="px-4 py-3 text-gray-600 text-sm truncate">{emp.companyId?.name || "—"}</td>
                     <td className="px-4 py-3 text-gray-600 text-sm">{emp.phone || "—"}</td>
-                    <td className="px-4 py-3 flex gap-2 justify-end">
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
                       <button
                         onClick={() => router.push(`/dipendenti/${emp._id}`)}
-                        className="text-sm text-blue-600 hover:underline"
+                        className="text-sm text-blue-600 hover:underline mr-3"
                       >
                         Modifica
                       </button>

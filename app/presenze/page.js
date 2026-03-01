@@ -210,13 +210,13 @@ export default function PresenzePage() {
           ) : presences.length === 0 ? (
             <p className="text-center text-gray-400 py-8">Nessuna presenza inserita per questo giorno</p>
           ) : (
-            <table className="w-full">
+            <table className="w-full table-fixed">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left px-4 py-2 text-xs font-medium text-gray-500">Dipendente</th>
-                  <th className="text-left px-4 py-2 text-xs font-medium text-gray-500">Status</th>
-                  <th className="text-left px-4 py-2 text-xs font-medium text-gray-500">Straordinari</th>
-                  <th className="px-4 py-2"></th>
+                  <th className="text-left px-4 py-2 text-xs font-medium text-gray-500 w-[35%]">Dipendente</th>
+                  <th className="text-left px-4 py-2 text-xs font-medium text-gray-500 w-[20%]">Status</th>
+                  <th className="text-left px-4 py-2 text-xs font-medium text-gray-500 w-[20%]">Straordinari</th>
+                  <th className="text-right px-4 py-2 w-[25%]"></th>
                 </tr>
               </thead>
               <tbody>
@@ -237,7 +237,7 @@ export default function PresenzePage() {
                           <select
                             value={editForm.status}
                             onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                            className="border rounded px-2 py-1 text-sm"
+                            className="border rounded px-2 py-1 text-sm w-full"
                           >
                             {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
                           </select>
@@ -250,14 +250,14 @@ export default function PresenzePage() {
                             className="border rounded px-2 py-1 text-sm w-20"
                           />
                         </td>
-                        <td className="px-4 py-2 flex gap-2 justify-end">
-                          <button onClick={handleSaveEdit} className="text-sm text-green-600 hover:underline">Salva</button>
+                        <td className="px-4 py-2 text-right whitespace-nowrap">
+                          <button onClick={handleSaveEdit} className="text-sm text-green-600 hover:underline mr-3">Salva</button>
                           <button onClick={() => setEditId(null)} className="text-sm text-gray-500 hover:underline">Annulla</button>
                         </td>
                       </>
                     ) : (
                       <>
-                        <td className="px-4 py-3 font-medium text-gray-800">{p.employeeName}</td>
+                        <td className="px-4 py-3 font-medium text-gray-900">{p.employeeName}</td>
                         <td className="px-4 py-3">
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[p.status] || "bg-gray-100 text-gray-600"}`}>
                             {p.status}
@@ -266,8 +266,8 @@ export default function PresenzePage() {
                         <td className="px-4 py-3 text-gray-600 text-sm">
                           {p.overtimeHours > 0 ? `${p.overtimeHours}h` : "—"}
                         </td>
-                        <td className="px-4 py-3 flex gap-2 justify-end">
-                          <button onClick={() => startEdit(p)} className="text-sm text-blue-600 hover:underline">Modifica</button>
+                        <td className="px-4 py-3 text-right whitespace-nowrap">
+                          <button onClick={() => startEdit(p)} className="text-sm text-blue-600 hover:underline mr-3">Modifica</button>
                           <button onClick={() => handleDelete(p._id)} className="text-sm text-red-500 hover:underline">Elimina</button>
                         </td>
                       </>
