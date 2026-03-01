@@ -1,0 +1,75 @@
+"use client";
+
+import { useSession, signOut } from "next-auth/react";
+import { useRouter, usePathname } from "next/navigation";
+import Image from "next/image";
+
+export default function Navbar() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  if (!session) return null;
+
+  const role = session.user?.role;
+  const isAdmin = role === "admin";
+  const isUfficio = role === "ufficio";
+
+  const links = [
+    { href: "/dashboard", label: "Dashboard", always: true },
+    { href: "/presenze", label: "Presenze", show: isAdmin || role === "Supervisore Cantieri" || role === "Capo Squadra" },
+    { href: "/totali", label: "Totali", always: true },
+    { href: "/contabilita", label: "Contabilità", show: isAdmin || isUfficio },
+    { href: "/rimborsi", label: "Rimborsi", show: isAdmin },
+    { href: "/dipendenti", label: "Dipendenti", show: isAdmin },
+    { href: "/cantieri", label: "Cantieri", show: isAdmin },
+  ].filter((l) => l.always || l.show);
+
+  return (
+    <nav className="bg-black text-white shadow-lg sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
+        {/* Logo */}
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push("/dashboard")}>
+          <Image
+            src="/logo.png"
+            alt="FC Costruzioni"
+            width={36}
+            height={36}
+            className="rounded"
+          />
+          <span className="font-bold text-sm tracking-wide hidden sm:block">FC COSTRUZIONI</span>
+        </div>
+
+        {/* Links */}
+        <div className="flex items-center gap-1 overflow-x-auto">
+          {links.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              className={`px-3 py-1.5 rounded text-sm font-medium whitespace-nowrap transition ${
+                pathname === l.href
+                  ? "bg-white text-black"
+                  : "text-gray-300 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              {l.label}
+            </a>
+          ))}
+        </div>
+
+        {/* User */}
+        <div className="flex items-center gap-3 ml-2">
+          <span className="text-xs text-gray-400 hidden md:block">
+            {session.user?.name}
+          </span>
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="text-xs text-gray-400 hover:text-white transition"
+          >
+            Esci
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
+}
