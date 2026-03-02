@@ -72,7 +72,7 @@ export default function TotaliPage() {
             <select
               value={siteId}
               onChange={(e) => setSiteId(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black transition"
             >
               <option value="">Seleziona cantiere...</option>
               {sites.map((s) => <option key={s._id} value={s._id}>{s.name}</option>)}
@@ -84,14 +84,14 @@ export default function TotaliPage() {
               type="month"
               value={month}
               onChange={(e) => setMonth(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black transition"
             />
           </div>
           <div className="flex items-end">
             <button
               onClick={handleSearch}
               disabled={!siteId || !month}
-              className="w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition"
+              className="w-full sm:w-auto bg-black text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 transition"
             >
               Cerca
             </button>

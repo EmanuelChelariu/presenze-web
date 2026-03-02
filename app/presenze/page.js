@@ -280,7 +280,7 @@ export default function PresenzePage() {
                     <th className="text-left px-3 py-2">Cantiere</th>
                     <th className="text-left px-3 py-2">Stato</th>
                     <th className="text-center px-3 py-2">Str.</th>
-                    <th className="text-left px-3 py-2">Data Ins.</th>
+                    <th className="text-left px-3 py-2">Data</th>
                     <th className="text-left px-3 py-2">Autore</th>
                     <th className="text-right px-3 py-2 w-32">Azioni</th>
                   </tr>
@@ -302,7 +302,7 @@ export default function PresenzePage() {
                       <td className="px-3 py-2.5 text-center text-sm text-gray-600">
                         {p.overtimeHours > 0 ? p.overtimeHours : "0"}
                       </td>
-                      <td className="px-3 py-2.5 text-xs text-gray-500">{fmtDate(p.createdAt)}</td>
+                      <td className="px-3 py-2.5 text-xs text-gray-500">{fmtDate(p.date)}</td>
                       <td className="px-3 py-2.5 text-xs text-gray-500">{p.createdByName || "—"}</td>
                       <td className="px-3 py-2.5 text-right whitespace-nowrap">
                         <button

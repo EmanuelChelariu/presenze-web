@@ -16,7 +16,7 @@ export async function GET(req) {
   const filter = {};
   if (month) {
     const [y, m] = month.split("-").map(Number);
-    filter.date = { $gte: new Date(y, m - 1, 1), $lte: new Date(y, m, 0, 23, 59, 59, 999) };
+    filter.date = { $gte: new Date(Date.UTC(y, m - 1, 1)), $lte: new Date(Date.UTC(y, m, 0, 23, 59, 59, 999)) };
   }
 
   await connectDB();

@@ -18,8 +18,8 @@ export async function GET(req) {
   }
 
   const [year, m] = month.split("-").map(Number);
-  const start = new Date(year, m - 1, 1);
-  const end = new Date(year, m, 0, 23, 59, 59, 999);
+  const start = new Date(Date.UTC(year, m - 1, 1));
+  const end = new Date(Date.UTC(year, m, 0, 23, 59, 59, 999));
 
   await connectDB();
 
