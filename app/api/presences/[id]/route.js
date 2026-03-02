@@ -17,10 +17,8 @@ export async function PUT(req, { params }) {
 
   // Controlla duplicato escludendo se stesso
   if (employeeId && date) {
-    const dayStart = new Date(date);
-    dayStart.setHours(0, 0, 0, 0);
-    const dayEnd = new Date(date);
-    dayEnd.setHours(23, 59, 59, 999);
+    const dayStart = new Date(date + "T00:00:00.000Z");
+    const dayEnd = new Date(date + "T23:59:59.999Z");
 
     const duplicate = await Presence.findOne({
       employeeId,
@@ -36,9 +34,6 @@ export async function PUT(req, { params }) {
   const employee = await Employee.findById(employeeId);
   const site = await Site.findById(siteId);
 
-  const dayStart = new Date(date);
-  dayStart.setHours(0, 0, 0, 0);
-
   const presence = await Presence.findByIdAndUpdate(
     params.id,
     {
@@ -46,7 +41,7 @@ export async function PUT(req, { params }) {
       employeeName: employee?.fullName,
       siteId,
       siteName: site?.name,
-      date: dayStart,
+      date: new Date(date + "T00:00:00.000Z"),
       status,
       overtimeHours: Number(overtimeHours) || 0,
     },

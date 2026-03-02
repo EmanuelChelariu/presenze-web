@@ -19,10 +19,9 @@ export async function GET(req) {
   const filter = {};
 
   if (date) {
-    const start = new Date(date);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(date);
-    end.setHours(23, 59, 59, 999);
+    // Use UTC to match dates stored as midnight UTC
+    const start = new Date(date + "T00:00:00.000Z");
+    const end = new Date(date + "T23:59:59.999Z");
     filter.date = { $gte: start, $lte: end };
   }
 
@@ -50,10 +49,8 @@ export async function POST(req) {
   await connectDB();
 
   // Controlla duplicato: stesso dipendente, stesso giorno
-  const dayStart = new Date(date);
-  dayStart.setHours(0, 0, 0, 0);
-  const dayEnd = new Date(date);
-  dayEnd.setHours(23, 59, 59, 999);
+  const dayStart = new Date(date + "T00:00:00.000Z");
+  const dayEnd = new Date(date + "T23:59:59.999Z");
 
   const duplicate = await Presence.findOne({
     employeeId,
@@ -77,7 +74,7 @@ export async function POST(req) {
     employeeName: employee.fullName,
     siteId,
     siteName: site.name,
-    date: dayStart,
+    date: new Date(date + "T00:00:00.000Z"),
     status,
     overtimeHours: Number(overtimeHours) || 0,
     // Snapshot tariffe
