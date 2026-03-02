@@ -2,19 +2,17 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import connectDB from "@/lib/mongodb";
 import Presence from "@/models/Presence";
-import mongoose from "mongoose";
 
-// GET /api/totali?siteId=xxx&month=YYYY-MM
+// GET /api/totali?month=YYYY-MM
 export async function GET(req) {
   const session = await getServerSession(authOptions);
   if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-  const siteId = searchParams.get("siteId");
   const month = searchParams.get("month"); // es. "2026-03"
 
-  if (!siteId || !month) {
-    return Response.json({ error: "siteId e month obbligatori" }, { status: 400 });
+  if (!month) {
+    return Response.json({ error: "month obbligatorio" }, { status: 400 });
   }
 
   const [year, m] = month.split("-").map(Number);
@@ -26,7 +24,6 @@ export async function GET(req) {
   const rows = await Presence.aggregate([
     {
       $match: {
-        siteId: new mongoose.Types.ObjectId(siteId),
         date: { $gte: start, $lte: end },
       },
     },
@@ -50,6 +47,7 @@ export async function GET(req) {
           $sum: { $cond: [{ $eq: ["$status", "Infortunio"] }, 1, 0] },
         },
         straordinari: { $sum: "$overtimeHours" },
+        totaleGiorni: { $sum: 1 },
       },
     },
     { $sort: { employeeName: 1 } },

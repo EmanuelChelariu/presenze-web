@@ -18,7 +18,7 @@ export default function Navbar() {
   const links = [
     { href: "/dashboard", label: "Dashboard", always: true },
     { href: "/presenze", label: "Presenze", show: isAdmin || role === "Supervisore Cantieri" || role === "Capo Squadra" },
-    { href: "/totali", label: "Totali", always: true },
+    { href: "/totali", label: "Tot. Presenze", always: true },
     { href: "/contabilita-cantieri", label: "Cont. Cantieri", show: isAdmin || isUfficio },
     { href: "/contabilita", label: "Cont. Mensile", show: isAdmin || isUfficio },
     { href: "/rimborsi", label: "Rimborsi", show: isAdmin },
