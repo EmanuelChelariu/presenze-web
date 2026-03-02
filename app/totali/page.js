@@ -81,15 +81,6 @@ export default function TotaliPage() {
     setDetailLoading(false);
   }
 
-  // Totali colonna
-  const totPresenze = rows.reduce((s, r) => s + r.presenze, 0);
-  const totAssenze = rows.reduce((s, r) => s + r.assenze, 0);
-  const totMalattie = rows.reduce((s, r) => s + r.malattie, 0);
-  const totFerie = rows.reduce((s, r) => s + r.ferie, 0);
-  const totInfortuni = rows.reduce((s, r) => s + r.infortuni, 0);
-  const totStraord = rows.reduce((s, r) => s + r.straordinari, 0);
-  const totGiorni = rows.reduce((s, r) => s + r.totaleGiorni, 0);
-
   // Label mese selezionato
   const [y, m] = month.split("-").map(Number);
   const meseLabel = `${MESI[m - 1]} ${y}`;
@@ -199,19 +190,6 @@ export default function TotaliPage() {
                       </tr>
                     ))}
                   </tbody>
-                  {/* Totali */}
-                  <tfoot>
-                    <tr className="border-t-2 border-gray-200 bg-gray-50 font-semibold">
-                      <td className="px-4 py-3 text-gray-700">Totale</td>
-                      <td className="px-3 py-3 text-center text-gray-700">{totGiorni}</td>
-                      <td className="px-3 py-3 text-center text-green-700">{totPresenze || "—"}</td>
-                      <td className="px-3 py-3 text-center text-red-500">{totAssenze || "—"}</td>
-                      <td className="px-3 py-3 text-center text-yellow-600">{totMalattie || "—"}</td>
-                      <td className="px-3 py-3 text-center text-blue-600">{totFerie || "—"}</td>
-                      <td className="px-3 py-3 text-center text-orange-500">{totInfortuni || "—"}</td>
-                      <td className="px-3 py-3 text-center text-gray-600">{totStraord > 0 ? `${totStraord}h` : "—"}</td>
-                    </tr>
-                  </tfoot>
                 </table>
               </div>
             </div>
