@@ -61,8 +61,9 @@ export default function PresenzePage() {
       .then((data) => { setPresences(Array.isArray(data) ? data : []); setLoading(false); });
   }, [date]);
 
-  // Operai attivi (solo dipendenti attivi, senza ruoli ufficio)
-  const operaiAttivi = employees.length;
+  // Operai attivi (esclusi ruoli d'ufficio)
+  const RUOLI_UFFICIO = ["Amministrazione Ufficio", "Legale Rappresentante", "Segreteria tecnica"];
+  const operaiAttivi = employees.filter((e) => !RUOLI_UFFICIO.includes(e.role)).length;
 
   // Dipendenti già presenti oggi (per escluderli dal form di aggiunta)
   const presentIds = new Set(presences.map((p) => String(p.employeeId)));
