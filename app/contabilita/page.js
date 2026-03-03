@@ -13,6 +13,12 @@ function currentMonth() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
+function shiftMonth(month, delta) {
+  const [y, m] = month.split("-").map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
 function fmt(n) {
   return Number(n || 0).toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
 }
@@ -24,19 +30,24 @@ export default function ContabilitaPage() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
-  async function handleSearch() {
+  // Carica automaticamente quando cambia il mese
+  useEffect(() => {
+    if (!month) return;
     setLoading(true);
     setSearched(true);
-    const res = await fetch(`/api/contabilita?month=${month}`);
-    const data = await res.json();
-    setRows(Array.isArray(data) ? data : []);
-    setLoading(false);
-  }
+    fetch(`/api/contabilita?month=${month}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setRows(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [month]);
 
   const [y, m] = month.split("-").map(Number);
   const meseLabel = `${MESI[m - 1]} ${y}`;
 
-  // Totali colonne
+  // Totali colonne — totale SENZA rimborsi
   const totGiorni = rows.reduce((s, r) => s + r.giorni, 0);
   const totStraord = rows.reduce((s, r) => s + r.straordinari, 0);
   const totDaily = rows.reduce((s, r) => s + r.totaleDailyAmount, 0);
@@ -50,7 +61,6 @@ export default function ContabilitaPage() {
 
     const doc = new jsPDF("landscape");
 
-    // Header
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.text("FC COSTRUZIONI SRL", 14, 15);
@@ -61,32 +71,20 @@ export default function ContabilitaPage() {
     doc.text(`Generato il: ${new Date().toLocaleDateString("it-IT")}`, 280, 15, { align: "right" });
 
     const head = [[
-      "Nome e Cognome", "Giorni", "Straord. (h)",
+      "Cognome e Nome", "Giorni", "Straord. (h)",
       "Tariffa\ngiornaliera", "Tariffa\nstraord.",
       "Rimborsi", "Totale", "IBAN"
     ]];
 
     const body = rows.map((r) => [
-      r.fullName,
+      `${r.lastName} ${r.firstName}`,
       r.giorni,
       r.straordinari > 0 ? r.straordinari : "—",
-      fmt(r.dailyRateAvg),
-      r.straordinari > 0 ? fmt(r.overtimeRateAvg) : "—",
+      fmt(r.dailyRate),
+      r.straordinari > 0 ? fmt(r.overtimeRate) : "—",
       r.rimborsi !== 0 ? fmt(r.rimborsi) : "—",
       fmt(r.totale),
       r.iban || "—",
-    ]);
-
-    // Riga totali
-    body.push([
-      { content: "TOTALE", styles: { fontStyle: "bold" } },
-      { content: totGiorni, styles: { fontStyle: "bold" } },
-      { content: totStraord > 0 ? totStraord : "—", styles: { fontStyle: "bold" } },
-      { content: fmt(totDaily), styles: { fontStyle: "bold" } },
-      { content: fmt(totOvertime), styles: { fontStyle: "bold" } },
-      { content: totRimborsi !== 0 ? fmt(totRimborsi) : "—", styles: { fontStyle: "bold" } },
-      { content: fmt(totTotale), styles: { fontStyle: "bold" } },
-      "",
     ]);
 
     autoTable(doc, {
@@ -139,39 +137,45 @@ export default function ContabilitaPage() {
         </div>
 
         {/* Filtri */}
-        <div className="bg-white rounded-xl shadow p-4 mb-4 flex flex-col sm:flex-row gap-3">
+        <div className="bg-white rounded-xl shadow p-4 mb-4 flex flex-col sm:flex-row gap-3 items-end">
           <div className="flex-1">
             <label className="block text-xs font-medium text-gray-500 mb-1">Mese</label>
-            <input
-              type="month"
-              value={month}
-              onChange={(e) => setMonth(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="flex items-end gap-2">
-            <button
-              onClick={handleSearch}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
-            >
-              Cerca
-            </button>
-            {rows.length > 0 && (
+            <div className="flex items-center gap-2">
               <button
-                onClick={exportPDF}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition flex items-center gap-1"
+                onClick={() => setMonth(shiftMonth(month, -1))}
+                className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium"
               >
-                📄 PDF
+                ←
               </button>
-            )}
+              <input
+                type="month"
+                value={month}
+                onChange={(e) => setMonth(e.target.value)}
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black transition"
+              />
+              <button
+                onClick={() => setMonth(shiftMonth(month, 1))}
+                className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium"
+              >
+                →
+              </button>
+            </div>
           </div>
+          {rows.length > 0 && (
+            <button
+              onClick={exportPDF}
+              className="bg-green-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-green-700 transition whitespace-nowrap"
+            >
+              Esporta PDF
+            </button>
+          )}
         </div>
 
         {/* Tabella */}
         {loading ? (
           <p className="text-center text-gray-400 py-12">Caricamento...</p>
         ) : searched && rows.length === 0 ? (
-          <p className="text-center text-gray-400 py-12">Nessuna presenza trovata per questo mese</p>
+          <p className="text-center text-gray-400 py-12">Nessuna presenza trovata per {meseLabel}</p>
         ) : rows.length > 0 && (
           <div className="bg-white rounded-xl shadow overflow-x-auto">
             <div className="px-4 py-3 border-b bg-gray-50 flex items-center justify-between">
@@ -188,7 +192,7 @@ export default function ContabilitaPage() {
                   <th className="text-right px-3 py-3">Tar. giorn.</th>
                   <th className="text-right px-3 py-3">Tar. straord.</th>
                   <th className="text-right px-3 py-3">Rimborsi</th>
-                  <th className="text-right px-4 py-3 text-gray-800">Totale</th>
+                  <th className="text-right px-4 py-3 text-gray-800 font-bold">Totale</th>
                   <th className="text-left px-4 py-3">IBAN</th>
                 </tr>
               </thead>
@@ -200,9 +204,9 @@ export default function ContabilitaPage() {
                     <td className="px-3 py-3 text-center text-gray-600">
                       {r.straordinari > 0 ? `${r.straordinari}h` : <span className="text-gray-300">—</span>}
                     </td>
-                    <td className="px-3 py-3 text-right text-gray-600 text-sm">{fmt(r.dailyRateAvg)}</td>
+                    <td className="px-3 py-3 text-right text-gray-600 text-sm">{fmt(r.dailyRate)}</td>
                     <td className="px-3 py-3 text-right text-gray-600 text-sm">
-                      {r.straordinari > 0 ? fmt(r.overtimeRateAvg) : <span className="text-gray-300">—</span>}
+                      {r.straordinari > 0 ? fmt(r.overtimeRate) : <span className="text-gray-300">—</span>}
                     </td>
                     <td className="px-3 py-3 text-right text-sm">
                       {r.rimborsi !== 0
