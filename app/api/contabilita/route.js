@@ -79,6 +79,27 @@ export async function GET(req) {
     totals[empId].totaleOvertimeAmount += overtimeRate * overtimeHours;
   });
 
+  // Aggiungi dipendenti che hanno solo rimborsi (senza presenze)
+  Object.keys(rimborsiByEmp).forEach((empId) => {
+    if (!totals[empId]) {
+      const emp = empById[empId];
+      if (!emp) return;
+      totals[empId] = {
+        employeeId: empId,
+        firstName: emp.firstName || "",
+        lastName: emp.lastName || "",
+        fullName: emp.fullName || `${emp.firstName} ${emp.lastName}`,
+        iban: emp.iban || "",
+        giorni: 0,
+        straordinari: 0,
+        totaleDailyAmount: 0,
+        totaleOvertimeAmount: 0,
+        dailyRate: emp.dailyRate || 0,
+        overtimeRate: emp.overtimeRate || 0,
+      };
+    }
+  });
+
   const rows = Object.values(totals)
     .map((row) => {
       const rimborso = rimborsiByEmp[row.employeeId] || 0;

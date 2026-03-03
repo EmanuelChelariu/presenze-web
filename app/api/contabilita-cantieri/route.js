@@ -117,6 +117,26 @@ export async function GET(req) {
     totals[empId].totaleContributo += dailyContribution;
   });
 
+  // Aggiungi dipendenti che hanno solo rimborsi (senza presenze) per questo cantiere
+  Object.keys(rimborsiByEmp).forEach((empId) => {
+    if (!totals[empId]) {
+      const emp = empById[empId];
+      if (!emp) return;
+      totals[empId] = {
+        employeeId: empId,
+        fullName: emp.fullName || `${emp.firstName} ${emp.lastName}`,
+        giorni: 0,
+        straordinari: 0,
+        dailyRate: emp.dailyRate || 0,
+        overtimeRate: emp.overtimeRate || 0,
+        dailyContribution: emp.dailyContribution || 0,
+        totaleDailyAmount: 0,
+        totaleOvertimeAmount: 0,
+        totaleContributo: 0,
+      };
+    }
+  });
+
   // Rows per mese
   const rows = Object.values(totals)
     .map((row) => {
