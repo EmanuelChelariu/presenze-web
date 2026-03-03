@@ -279,17 +279,18 @@ export default function ContabilitaCantieriPage() {
               <span className="text-sm text-gray-400">{rows.length} dipendenti</span>
             </div>
 
-            <table className="w-full min-w-[1000px]">
+            <table className="w-full min-w-[1100px]">
               <thead>
                 <tr className="border-b bg-gray-50 text-xs font-medium text-gray-600">
                   <th className="text-left px-4 py-3">Nome e Cognome</th>
-                  <th className="text-center px-2 py-3">Giorni</th>
-                  <th className="text-right px-2 py-3">Tar. Giorn.</th>
-                  <th className="text-right px-2 py-3">Tot. Giorn.</th>
-                  <th className="text-center px-2 py-3">Ore Str.</th>
-                  <th className="text-right px-2 py-3">Tot. Str.</th>
-                  <th className="text-right px-2 py-3">Contr. Giorn.</th>
-                  <th className="text-right px-2 py-3">Tot. Contr.</th>
+                  <th className="text-center px-2 py-3">Giorni lavorati</th>
+                  <th className="text-center px-2 py-3">Ore Straord.</th>
+                  <th className="text-right px-2 py-3">Tariffa giorn. €</th>
+                  <th className="text-right px-2 py-3">Totale giorn. €</th>
+                  <th className="text-right px-2 py-3">Tariffa straord. €</th>
+                  <th className="text-right px-2 py-3">Totale straord. €</th>
+                  <th className="text-right px-2 py-3">Contributo giorn. €</th>
+                  <th className="text-right px-2 py-3">Totale contributi €</th>
                   <th className="text-right px-4 py-3 text-gray-800 font-bold">TOTALE</th>
                 </tr>
               </thead>
@@ -300,10 +301,13 @@ export default function ContabilitaCantieriPage() {
                     <tr key={r.employeeId} className={`border-b last:border-0 ${i % 2 === 0 ? "" : "bg-gray-50/50"}`}>
                       <td className="px-4 py-3 font-medium text-gray-900">{r.fullName}</td>
                       <td className="px-2 py-3 text-center font-semibold text-green-700">{r.giorni}</td>
+                      <td className="px-2 py-3 text-center text-gray-600">
+                        {r.straordinari > 0 ? r.straordinari : <span className="text-gray-300">—</span>}
+                      </td>
                       <td className="px-2 py-3 text-right text-sm text-gray-600">{fmt(r.dailyRate)}</td>
                       <td className="px-2 py-3 text-right text-sm font-medium text-gray-800">{fmt(r.totaleDailyAmount)}</td>
-                      <td className="px-2 py-3 text-center text-gray-600">
-                        {r.straordinari > 0 ? `${r.straordinari}h` : <span className="text-gray-300">—</span>}
+                      <td className="px-2 py-3 text-right text-sm text-gray-600">
+                        {r.straordinari > 0 ? fmt(r.overtimeRate) : <span className="text-gray-300">—</span>}
                       </td>
                       <td className="px-2 py-3 text-right text-sm text-gray-600">
                         {r.totaleOvertimeAmount > 0 ? fmt(r.totaleOvertimeAmount) : <span className="text-gray-300">—</span>}
@@ -319,9 +323,10 @@ export default function ContabilitaCantieriPage() {
                 <tr className="border-t-2 border-gray-300 bg-blue-50 font-bold text-sm">
                   <td className="px-4 py-3 text-gray-800">TOTALE</td>
                   <td className="px-2 py-3 text-center text-green-700">{totGiorni}</td>
+                  <td className="px-2 py-3 text-center text-gray-700">{totStraord > 0 ? totStraord : ""}</td>
                   <td className="px-2 py-3"></td>
                   <td className="px-2 py-3 text-right text-gray-800">{fmt(totDailyAmount)}</td>
-                  <td className="px-2 py-3 text-center text-gray-700">{totStraord > 0 ? `${totStraord}h` : ""}</td>
+                  <td className="px-2 py-3"></td>
                   <td className="px-2 py-3 text-right text-gray-700">{fmt(totOvertimeAmount)}</td>
                   <td className="px-2 py-3"></td>
                   <td className="px-2 py-3 text-right text-gray-800">{fmt(totContributo)}</td>
