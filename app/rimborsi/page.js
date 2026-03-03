@@ -10,6 +10,12 @@ function currentMonth() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
+function shiftMonth(month, delta) {
+  const [y, m] = month.split("-").map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
 function fmt(n) {
   const v = Number(n || 0);
   return (v >= 0 ? "+ " : "- ") + Math.abs(v).toLocaleString("it-IT", { minimumFractionDigits: 2 }) + " €";
@@ -147,10 +153,22 @@ export default function RimborsiPage() {
         </form>
 
         {/* Filtro mese */}
-        <div className="bg-white rounded-xl shadow p-4 mb-4 flex gap-3 items-end">
-          <div className="flex-1">
-            <label className="block text-xs text-gray-500 mb-1">Mese</label>
-            <input type="month" value={month} onChange={e => setMonth(e.target.value)} className={inputClass} />
+        <div className="bg-white rounded-xl shadow p-4 mb-4">
+          <label className="block text-xs text-gray-500 mb-1">Mese</label>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setMonth(shiftMonth(month, -1))}
+              className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium"
+            >
+              ←
+            </button>
+            <input type="month" value={month} onChange={e => setMonth(e.target.value)} className={`flex-1 ${inputClass}`} />
+            <button
+              onClick={() => setMonth(shiftMonth(month, 1))}
+              className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium"
+            >
+              →
+            </button>
           </div>
         </div>
 
