@@ -39,7 +39,7 @@ export default function DipendentiPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -65,74 +65,87 @@ export default function DipendentiPage() {
           className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4 bg-white focus:outline-none focus:ring-2 focus:ring-black transition"
         />
 
+        <p className="text-sm text-gray-400 mb-4">{filtered.length} dipendenti</p>
+
         {/* Lista */}
         {loading ? (
           <p className="text-center text-gray-500 py-12">Caricamento...</p>
         ) : filtered.length === 0 ? (
           <p className="text-center text-gray-500 py-12">Nessun dipendente trovato</p>
         ) : (
-          <div className="bg-white rounded-xl shadow overflow-x-auto">
-            <table className="w-full min-w-[1200px]">
-              <thead className="bg-gray-50 border-b">
-                <tr className="text-xs font-medium text-gray-600">
-                  <th className="text-left px-4 py-3">Dipendente</th>
-                  <th className="text-center px-2 py-3">Stato</th>
-                  <th className="text-right px-2 py-3">Tar. Giorn.</th>
-                  <th className="text-right px-2 py-3">Tar. Str.</th>
-                  <th className="text-right px-2 py-3">Contr. Giorn.</th>
-                  <th className="text-left px-2 py-3">Telefono</th>
-                  <th className="text-left px-2 py-3">Email</th>
-                  <th className="text-left px-2 py-3">Ruolo</th>
-                  <th className="text-left px-2 py-3">IBAN</th>
-                  <th className="text-center px-2 py-3">Inserimento</th>
-                  <th className="text-center px-2 py-3">Modifica</th>
-                  <th className="text-right px-4 py-3">Azioni</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((emp, i) => (
-                  <tr key={emp._id} className={`border-b last:border-0 ${i % 2 === 0 ? "" : "bg-gray-50/50"}`}>
-                    <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
+          <div className="space-y-3">
+            {filtered.map((emp) => (
+              <div key={emp._id} className="bg-white rounded-xl shadow overflow-hidden">
+                {/* Riga principale: nome + stato + azioni */}
+                <div className="flex items-center justify-between px-5 py-3 border-b bg-gray-50/50">
+                  <div className="flex items-center gap-3">
+                    <span className="font-semibold text-gray-900 text-base">
                       {emp.lastName} {emp.firstName}
-                    </td>
-                    <td className="px-2 py-3 text-center">
-                      {emp.active !== false ? (
-                        <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-medium">Attivo</span>
-                      ) : (
-                        <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-medium">Inattivo</span>
-                      )}
-                    </td>
-                    <td className="px-2 py-3 text-right text-sm text-gray-700">{fmt(emp.dailyRate)}</td>
-                    <td className="px-2 py-3 text-right text-sm text-gray-700">{fmt(emp.overtimeRate)}</td>
-                    <td className="px-2 py-3 text-right text-sm text-gray-700">{fmt(emp.dailyContribution)}</td>
-                    <td className="px-2 py-3 text-sm text-gray-600 whitespace-nowrap">{emp.phone || "—"}</td>
-                    <td className="px-2 py-3 text-sm text-gray-600 truncate max-w-[150px]">{emp.email || "—"}</td>
-                    <td className="px-2 py-3 text-sm text-gray-600 whitespace-nowrap">{emp.role || "—"}</td>
-                    <td className="px-2 py-3 text-xs font-mono text-gray-500 truncate max-w-[160px]">{emp.iban || "—"}</td>
-                    <td className="px-2 py-3 text-center text-xs text-gray-500 whitespace-nowrap">{fmtDate(emp.createdAt)}</td>
-                    <td className="px-2 py-3 text-center text-xs text-gray-500 whitespace-nowrap">{fmtDate(emp.updatedAt)}</td>
-                    <td className="px-4 py-3 text-right whitespace-nowrap">
-                      <button
-                        onClick={() => router.push(`/dipendenti/${emp._id}`)}
-                        className="text-xs bg-green-50 text-green-700 px-3 py-1 rounded-lg hover:bg-green-100 transition mr-2"
-                      >
-                        Modifica
-                      </button>
-                      <button
-                        onClick={() => handleDelete(emp._id)}
-                        className="text-xs bg-red-50 text-red-500 px-2 py-1 rounded-lg hover:bg-red-100 transition"
-                      >
-                        ✕
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </span>
+                    {emp.active !== false ? (
+                      <span className="bg-green-100 text-green-700 px-2.5 py-0.5 rounded-full text-xs font-medium">Attivo</span>
+                    ) : (
+                      <span className="bg-red-100 text-red-600 px-2.5 py-0.5 rounded-full text-xs font-medium">Inattivo</span>
+                    )}
+                    {emp.role && (
+                      <span className="bg-gray-100 text-gray-600 px-2.5 py-0.5 rounded-full text-xs font-medium">{emp.role}</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => router.push(`/dipendenti/${emp._id}`)}
+                      className="text-xs bg-green-50 text-green-700 px-3 py-1.5 rounded-lg hover:bg-green-100 transition font-medium"
+                    >
+                      Modifica
+                    </button>
+                    <button
+                      onClick={() => handleDelete(emp._id)}
+                      className="text-xs bg-red-50 text-red-500 px-2.5 py-1.5 rounded-lg hover:bg-red-100 transition"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+
+                {/* Dettagli in griglia */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-3 px-5 py-4 text-sm">
+                  <div>
+                    <span className="block text-xs text-gray-400 mb-0.5">Tariffa giornaliera</span>
+                    <span className="font-medium text-gray-800">{fmt(emp.dailyRate)}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-gray-400 mb-0.5">Tariffa straordinari</span>
+                    <span className="font-medium text-gray-800">{fmt(emp.overtimeRate)}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-gray-400 mb-0.5">Contributo giornaliero</span>
+                    <span className="font-medium text-gray-800">{fmt(emp.dailyContribution)}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-gray-400 mb-0.5">Telefono</span>
+                    <span className="text-gray-700">{emp.phone || "—"}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-gray-400 mb-0.5">Email</span>
+                    <span className="text-gray-700 break-all">{emp.email || "—"}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-gray-400 mb-0.5">IBAN</span>
+                    <span className="text-gray-700 font-mono text-xs break-all">{emp.iban || "—"}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-gray-400 mb-0.5">Data inserimento</span>
+                    <span className="text-gray-600">{fmtDate(emp.createdAt)}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-gray-400 mb-0.5">Ultima modifica</span>
+                    <span className="text-gray-600">{fmtDate(emp.updatedAt)}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
-
-        <p className="text-sm text-gray-400 mt-4">{filtered.length} dipendenti</p>
       </div>
     </div>
   );
