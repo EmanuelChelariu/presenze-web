@@ -53,7 +53,7 @@ export default function ContabilitaPage() {
   const totDaily = rows.reduce((s, r) => s + r.totaleDailyAmount, 0);
   const totOvertime = rows.reduce((s, r) => s + r.totaleOvertimeAmount, 0);
   const totRimborsi = rows.reduce((s, r) => s + r.rimborsi, 0);
-  const totTotale = rows.reduce((s, r) => s + r.totale, 0);
+  const totTotale = rows.reduce((s, r) => s + r.totaleDailyAmount + r.totaleOvertimeAmount, 0);
 
   async function exportPDF() {
     const { jsPDF } = await import("jspdf");

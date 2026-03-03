@@ -82,7 +82,7 @@ export async function GET(req) {
   const rows = Object.values(totals)
     .map((row) => {
       const rimborso = rimborsiByEmp[row.employeeId] || 0;
-      const totale = row.totaleDailyAmount + row.totaleOvertimeAmount;
+      const totale = row.totaleDailyAmount + row.totaleOvertimeAmount + rimborso;
       return {
         ...row,
         rimborsi: rimborso,
