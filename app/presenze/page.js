@@ -156,7 +156,7 @@ export default function PresenzePage() {
         </div>
 
         {/* Pulsanti azione — allineati e simmetrici */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
           <button
             onClick={() => { if (editId) resetForm(); else setShowForm(!showForm); }}
             className="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-black hover:text-black transition text-center"
@@ -168,6 +168,12 @@ export default function PresenzePage() {
             className="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-black hover:text-black transition text-center"
           >
             ⊕ Aggiungi Rimborso/Trattenuta
+          </button>
+          <button
+            onClick={() => router.push("/rapportini")}
+            className="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-black hover:text-black transition text-center"
+          >
+            ⊕ Aggiungi Rapportino
           </button>
         </div>
 

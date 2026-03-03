@@ -21,6 +21,7 @@ export default function Navbar() {
     { href: "/totali", label: "Tot. Presenze", always: true },
     { href: "/contabilita-cantieri", label: "Cont. Cantieri", show: isAdmin || isUfficio },
     { href: "/contabilita", label: "Cont. Mensile", show: isAdmin || isUfficio },
+    { href: "/rapportini", label: "Rapportini", show: isAdmin || role === "Supervisore Cantieri" || role === "Capo Squadra" },
     { href: "/rimborsi", label: "Rimborsi", show: isAdmin },
     { href: "/dipendenti", label: "Dipendenti", show: isAdmin },
     { href: "/cantieri", label: "Cantieri", show: isAdmin },
