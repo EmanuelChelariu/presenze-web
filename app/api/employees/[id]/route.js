@@ -5,21 +5,23 @@ import Employee from "@/models/Employee";
 import "@/models/Company";
 
 // GET singolo dipendente
-export async function GET(req, { params }) {
+export async function GET(req, context) {
   const session = await getServerSession(authOptions);
   if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
 
+  const { id } = await context.params;
   await connectDB();
-  const employee = await Employee.findById(params.id).populate("companyId", "name");
+  const employee = await Employee.findById(id).populate("companyId", "name");
   if (!employee) return Response.json({ error: "Non trovato" }, { status: 404 });
   return Response.json(employee);
 }
 
 // PUT - modifica dipendente
-export async function PUT(req, { params }) {
+export async function PUT(req, context) {
   const session = await getServerSession(authOptions);
   if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
 
+  const { id } = await context.params;
   const body = await req.json();
   const {
     firstName, lastName, badgeId, phone, email,
@@ -30,7 +32,7 @@ export async function PUT(req, { params }) {
   await connectDB();
 
   if (badgeId) {
-    const existing = await Employee.findOne({ badgeId: badgeId.toUpperCase(), _id: { $ne: params.id } });
+    const existing = await Employee.findOne({ badgeId: badgeId.toUpperCase(), _id: { $ne: id } });
     if (existing) return Response.json({ error: "Badge già esistente" }, { status: 400 });
   }
 
@@ -51,17 +53,18 @@ export async function PUT(req, { params }) {
     update.ratesEffectiveFrom = new Date(now.getFullYear(), now.getMonth(), 1);
   }
 
-  const employee = await Employee.findByIdAndUpdate(params.id, update, { new: true }).populate("companyId", "name");
+  const employee = await Employee.findByIdAndUpdate(id, update, { new: true }).populate("companyId", "name");
   if (!employee) return Response.json({ error: "Dipendente non trovato" }, { status: 404 });
   return Response.json(employee);
 }
 
 // DELETE - disattiva dipendente
-export async function DELETE(req, { params }) {
+export async function DELETE(req, context) {
   const session = await getServerSession(authOptions);
   if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
 
+  const { id } = await context.params;
   await connectDB();
-  await Employee.findByIdAndUpdate(params.id, { active: false });
+  await Employee.findByIdAndUpdate(id, { active: false });
   return Response.json({ ok: true });
 }

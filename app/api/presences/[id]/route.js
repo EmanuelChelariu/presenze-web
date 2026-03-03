@@ -6,10 +6,11 @@ import Employee from "@/models/Employee";
 import Site from "@/models/Site";
 
 // PUT - modifica presenza
-export async function PUT(req, { params }) {
+export async function PUT(req, context) {
   const session = await getServerSession(authOptions);
   if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
 
+  const { id } = await context.params;
   const body = await req.json();
   const { employeeId, siteId, date, status, overtimeHours } = body;
 
@@ -23,7 +24,7 @@ export async function PUT(req, { params }) {
     const duplicate = await Presence.findOne({
       employeeId,
       date: { $gte: dayStart, $lte: dayEnd },
-      _id: { $ne: params.id },
+      _id: { $ne: id },
     });
 
     if (duplicate) {
@@ -35,7 +36,7 @@ export async function PUT(req, { params }) {
   const site = await Site.findById(siteId);
 
   const presence = await Presence.findByIdAndUpdate(
-    params.id,
+    id,
     {
       employeeId,
       employeeName: employee?.fullName,
@@ -53,11 +54,12 @@ export async function PUT(req, { params }) {
 }
 
 // DELETE - elimina presenza
-export async function DELETE(req, { params }) {
+export async function DELETE(req, context) {
   const session = await getServerSession(authOptions);
   if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
 
+  const { id } = await context.params;
   await connectDB();
-  await Presence.findByIdAndDelete(params.id);
+  await Presence.findByIdAndDelete(id);
   return Response.json({ ok: true });
 }
