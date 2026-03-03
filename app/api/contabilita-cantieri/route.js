@@ -7,6 +7,29 @@ import Rimborso from "@/models/Rimborso";
 import Site from "@/models/Site";
 import mongoose from "mongoose";
 
+// Funzione helper per ottenere la tariffa corretta
+// Usa il snapshot della presenza se > 0, altrimenti la tariffa attuale del dipendente
+function getRate(presenceValue, employeeValue) {
+  return (presenceValue && presenceValue > 0) ? presenceValue : (employeeValue || 0);
+}
+
+// Calcola il costo totale di un set di presenze
+function calcTotal(presences, empById) {
+  let total = 0;
+  presences.forEach((p) => {
+    const emp = empById[String(p.employeeId)];
+    if (!emp) return;
+
+    const dailyRate = getRate(p.dailyRate, emp.dailyRate);
+    const overtimeRate = getRate(p.overtimeRate, emp.overtimeRate);
+    const dailyContribution = getRate(p.dailyContribution, emp.dailyContribution);
+    const overtimeHours = Number(p.overtimeHours) || 0;
+
+    total += dailyRate + (overtimeRate * overtimeHours) + dailyContribution;
+  });
+  return total;
+}
+
 // GET /api/contabilita-cantieri?siteId=xxx&month=YYYY-MM
 export async function GET(req) {
   const session = await getServerSession(authOptions);
@@ -28,8 +51,13 @@ export async function GET(req) {
 
   const siteObjId = new mongoose.Types.ObjectId(siteId);
 
-  // Get site info for startDate
+  // Get site info
   const site = await Site.findById(siteId).lean();
+
+  // Tutti i dipendenti (per tariffe)
+  const employees = await Employee.find({}).lean();
+  const empById = {};
+  employees.forEach((e) => { empById[String(e._id)] = e; });
 
   // Presenze del mese per questo cantiere (solo Presente)
   const presences = await Presence.find({
@@ -37,11 +65,6 @@ export async function GET(req) {
     date: { $gte: monthStart, $lte: monthEnd },
     status: "Presente",
   }).lean();
-
-  // Tutti i dipendenti
-  const employees = await Employee.find({}).lean();
-  const empById = {};
-  employees.forEach((e) => { empById[String(e._id)] = e; });
 
   // Rimborsi del mese per questo cantiere
   const rimborsi = await Rimborso.find({
@@ -64,33 +87,25 @@ export async function GET(req) {
     const emp = empById[empId];
     if (!emp) return;
 
+    const dailyRate = getRate(p.dailyRate, emp.dailyRate);
+    const overtimeRate = getRate(p.overtimeRate, emp.overtimeRate);
+    const dailyContribution = getRate(p.dailyContribution, emp.dailyContribution);
+    const overtimeHours = Number(p.overtimeHours) || 0;
+
     if (!totals[empId]) {
       totals[empId] = {
         employeeId: empId,
         fullName: emp.fullName || `${emp.firstName} ${emp.lastName}`,
         giorni: 0,
         straordinari: 0,
-        dailyRate: 0,
-        overtimeRate: 0,
-        dailyContribution: 0,
+        dailyRate: dailyRate,
+        overtimeRate: overtimeRate,
+        dailyContribution: dailyContribution,
         totaleDailyAmount: 0,
         totaleOvertimeAmount: 0,
         totaleContributo: 0,
       };
     }
-
-    const presenceDate = new Date(p.date);
-    const presenceMonthStart = new Date(presenceDate.getFullYear(), presenceDate.getMonth(), 1);
-    const ratesMonthStart = emp.ratesEffectiveFrom
-      ? new Date(new Date(emp.ratesEffectiveFrom).getFullYear(), new Date(emp.ratesEffectiveFrom).getMonth(), 1)
-      : new Date(0);
-
-    const useCurrentRates = presenceMonthStart >= ratesMonthStart;
-
-    const dailyRate = useCurrentRates ? (emp.dailyRate || 0) : (p.dailyRate || 0);
-    const overtimeRate = useCurrentRates ? (emp.overtimeRate || 0) : (p.overtimeRate || 0);
-    const dailyContribution = useCurrentRates ? (emp.dailyContribution || 0) : (p.dailyContribution || 0);
-    const overtimeHours = Number(p.overtimeHours) || 0;
 
     totals[empId].giorni += 1;
     totals[empId].straordinari += overtimeHours;
@@ -106,47 +121,31 @@ export async function GET(req) {
   const rows = Object.values(totals)
     .map((row) => {
       const rimborso = rimborsiByEmp[row.employeeId] || 0;
-      const totale = row.totaleDailyAmount + row.totaleOvertimeAmount + rimborso;
-      return { ...row, rimborsi: rimborso, totale };
+      return { ...row, rimborsi: rimborso };
     })
     .sort((a, b) => a.fullName.localeCompare(b.fullName));
 
-  // Totale del mese
-  const totaleMese = rows.reduce((s, r) => s + r.totale, 0);
+  // Totale del mese (paga + straordinari + contributi + rimborsi)
+  const totaleMese = rows.reduce((s, r) =>
+    s + r.totaleDailyAmount + r.totaleOvertimeAmount + r.totaleContributo + r.rimborsi, 0);
 
-  // Totale dall'inizio cantiere
+  // === TOTALE DALL'INIZIO CANTIERE (fino ad OGGI, non fino al mese selezionato) ===
   const siteStart = site?.startDate ? new Date(site.startDate) : new Date(Date.UTC(2020, 0, 1));
+  const today = new Date();
+  const todayEnd = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999));
 
   const allPresences = await Presence.find({
     siteId: siteObjId,
-    date: { $gte: siteStart, $lte: monthEnd },
+    date: { $gte: siteStart, $lte: todayEnd },
     status: "Presente",
   }).lean();
 
-  let totaleInizio = 0;
-  allPresences.forEach((p) => {
-    const empId = String(p.employeeId);
-    const emp = empById[empId];
-    if (!emp) return;
+  let totaleInizio = calcTotal(allPresences, empById);
 
-    const presenceDate = new Date(p.date);
-    const presenceMonthStart = new Date(presenceDate.getFullYear(), presenceDate.getMonth(), 1);
-    const ratesMonthStart = emp.ratesEffectiveFrom
-      ? new Date(new Date(emp.ratesEffectiveFrom).getFullYear(), new Date(emp.ratesEffectiveFrom).getMonth(), 1)
-      : new Date(0);
-    const useCurrentRates = presenceMonthStart >= ratesMonthStart;
-
-    const dailyRate = useCurrentRates ? (emp.dailyRate || 0) : (p.dailyRate || 0);
-    const overtimeRate = useCurrentRates ? (emp.overtimeRate || 0) : (p.overtimeRate || 0);
-    const overtimeHours = Number(p.overtimeHours) || 0;
-
-    totaleInizio += dailyRate + (overtimeRate * overtimeHours);
-  });
-
-  // Rimborsi totali dall'inizio
+  // Rimborsi totali dall'inizio cantiere
   const allRimborsi = await Rimborso.find({
     siteId: siteObjId,
-    date: { $gte: siteStart, $lte: monthEnd },
+    date: { $gte: siteStart, $lte: todayEnd },
   }).lean();
   allRimborsi.forEach((r) => { totaleInizio += Number(r.amount) || 0; });
 

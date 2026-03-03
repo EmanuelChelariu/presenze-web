@@ -71,7 +71,7 @@ export default function ContabilitaCantieriPage() {
   const totDailyAmount = rows.reduce((s, r) => s + r.totaleDailyAmount, 0);
   const totOvertimeAmount = rows.reduce((s, r) => s + r.totaleOvertimeAmount, 0);
   const totContributo = rows.reduce((s, r) => s + r.totaleContributo, 0);
-  const totTotale = rows.reduce((s, r) => s + r.totaleDailyAmount + r.totaleOvertimeAmount, 0);
+  const grandTotal = rows.reduce((s, r) => s + r.totaleDailyAmount + r.totaleOvertimeAmount + r.totaleContributo, 0);
 
   async function exportPDF() {
     const { jsPDF } = await import("jspdf");
@@ -279,7 +279,7 @@ export default function ContabilitaCantieriPage() {
               <span className="text-sm text-gray-400">{rows.length} dipendenti</span>
             </div>
 
-            <table className="w-full min-w-[900px]">
+            <table className="w-full min-w-[1000px]">
               <thead>
                 <tr className="border-b bg-gray-50 text-xs font-medium text-gray-600">
                   <th className="text-left px-4 py-3">Nome e Cognome</th>
@@ -289,26 +289,31 @@ export default function ContabilitaCantieriPage() {
                   <th className="text-center px-2 py-3">Ore Str.</th>
                   <th className="text-right px-2 py-3">Tot. Str.</th>
                   <th className="text-right px-2 py-3">Contr. Giorn.</th>
-                  <th className="text-right px-4 py-3">Tot. Contr.</th>
+                  <th className="text-right px-2 py-3">Tot. Contr.</th>
+                  <th className="text-right px-4 py-3 text-gray-800 font-bold">TOTALE</th>
                 </tr>
               </thead>
               <tbody>
-                {rows.map((r, i) => (
-                  <tr key={r.employeeId} className={`border-b last:border-0 ${i % 2 === 0 ? "" : "bg-gray-50/50"}`}>
-                    <td className="px-4 py-3 font-medium text-gray-900">{r.fullName}</td>
-                    <td className="px-2 py-3 text-center font-semibold text-green-700">{r.giorni}</td>
-                    <td className="px-2 py-3 text-right text-sm text-gray-600">{fmt(r.dailyRate)}</td>
-                    <td className="px-2 py-3 text-right text-sm font-medium text-gray-800">{fmt(r.totaleDailyAmount)}</td>
-                    <td className="px-2 py-3 text-center text-gray-600">
-                      {r.straordinari > 0 ? `${r.straordinari}h` : <span className="text-gray-300">—</span>}
-                    </td>
-                    <td className="px-2 py-3 text-right text-sm text-gray-600">
-                      {r.totaleOvertimeAmount > 0 ? fmt(r.totaleOvertimeAmount) : <span className="text-gray-300">—</span>}
-                    </td>
-                    <td className="px-2 py-3 text-right text-sm text-gray-600">{fmt(r.dailyContribution)}</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-800">{fmt(r.totaleContributo)}</td>
-                  </tr>
-                ))}
+                {rows.map((r, i) => {
+                  const rowTotale = r.totaleDailyAmount + r.totaleOvertimeAmount + r.totaleContributo;
+                  return (
+                    <tr key={r.employeeId} className={`border-b last:border-0 ${i % 2 === 0 ? "" : "bg-gray-50/50"}`}>
+                      <td className="px-4 py-3 font-medium text-gray-900">{r.fullName}</td>
+                      <td className="px-2 py-3 text-center font-semibold text-green-700">{r.giorni}</td>
+                      <td className="px-2 py-3 text-right text-sm text-gray-600">{fmt(r.dailyRate)}</td>
+                      <td className="px-2 py-3 text-right text-sm font-medium text-gray-800">{fmt(r.totaleDailyAmount)}</td>
+                      <td className="px-2 py-3 text-center text-gray-600">
+                        {r.straordinari > 0 ? `${r.straordinari}h` : <span className="text-gray-300">—</span>}
+                      </td>
+                      <td className="px-2 py-3 text-right text-sm text-gray-600">
+                        {r.totaleOvertimeAmount > 0 ? fmt(r.totaleOvertimeAmount) : <span className="text-gray-300">—</span>}
+                      </td>
+                      <td className="px-2 py-3 text-right text-sm text-gray-600">{fmt(r.dailyContribution)}</td>
+                      <td className="px-2 py-3 text-right text-sm font-medium text-gray-800">{fmt(r.totaleContributo)}</td>
+                      <td className="px-4 py-3 text-right font-bold text-gray-900">{fmt(rowTotale)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
               <tfoot>
                 <tr className="border-t-2 border-gray-300 bg-blue-50 font-bold text-sm">
@@ -319,7 +324,8 @@ export default function ContabilitaCantieriPage() {
                   <td className="px-2 py-3 text-center text-gray-700">{totStraord > 0 ? `${totStraord}h` : ""}</td>
                   <td className="px-2 py-3 text-right text-gray-700">{fmt(totOvertimeAmount)}</td>
                   <td className="px-2 py-3"></td>
-                  <td className="px-4 py-3 text-right text-gray-800">{fmt(totContributo)}</td>
+                  <td className="px-2 py-3 text-right text-gray-800">{fmt(totContributo)}</td>
+                  <td className="px-4 py-3 text-right text-blue-700 text-base">{fmt(grandTotal)}</td>
                 </tr>
               </tfoot>
             </table>
