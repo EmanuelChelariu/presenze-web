@@ -65,7 +65,16 @@ export default function DipendentiPage() {
           className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4 bg-white focus:outline-none focus:ring-2 focus:ring-black transition"
         />
 
-        <p className="text-sm text-gray-400 mb-4">{filtered.length} dipendenti</p>
+        {(() => {
+          const RUOLI_UFFICIO = ["Amministrazione Ufficio", "Legale Rappresentante", "Segreteria tecnica"];
+          const operai = filtered.filter((e) => !RUOLI_UFFICIO.includes(e.role));
+          const ufficio = filtered.filter((e) => RUOLI_UFFICIO.includes(e.role));
+          return (
+            <p className="text-sm text-gray-400 mb-4">
+              {filtered.length} dipendenti — <span className="text-gray-600 font-medium">{operai.length} operai</span> · <span className="text-gray-600 font-medium">{ufficio.length} ufficio</span>
+            </p>
+          );
+        })()}
 
         {/* Lista */}
         {loading ? (
