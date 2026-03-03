@@ -80,14 +80,15 @@ export default function PresenzePage() {
 
   function startEdit(p) {
     setEditId(p._id);
+    const presDate = p.date ? new Date(p.date).toISOString().split("T")[0] : date;
     setForm({
       employeeId: String(p.employeeId),
       siteId: String(p.siteId),
       status: p.status,
       overtimeHours: p.overtimeHours || "",
+      editDate: presDate,
     });
     setShowForm(true);
-    // Scroll to top
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -97,16 +98,22 @@ export default function PresenzePage() {
     setSaving(true);
 
     if (editId) {
-      // Modifica
+      // Modifica — usa editDate dal form (può essere diversa dalla data della pagina)
+      const { editDate, ...formData } = form;
       const res = await fetch(`/api/presences/${editId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, date }),
+        body: JSON.stringify({ ...formData, date: editDate || date }),
       });
       const data = await res.json();
       setSaving(false);
       if (!res.ok) { setFormError(data.error || "Errore"); return; }
-      setPresences((prev) => prev.map((p) => p._id === editId ? { ...p, ...data } : p));
+      // Se la data è cambiata, rimuovi dalla lista attuale; altrimenti aggiorna
+      if (editDate !== date) {
+        setPresences((prev) => prev.filter((p) => p._id !== editId));
+      } else {
+        setPresences((prev) => prev.map((p) => p._id === editId ? { ...p, ...data } : p));
+      }
       resetForm();
     } else {
       // Nuovo inserimento
@@ -183,7 +190,7 @@ export default function PresenzePage() {
             <h2 className="text-sm font-semibold text-gray-700 mb-3">
               {editId ? "✏️ Modifica Presenza" : "Nuova Presenza"}
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className={`grid grid-cols-1 sm:grid-cols-2 ${editId ? "lg:grid-cols-5" : "lg:grid-cols-4"} gap-3`}>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Dipendente *</label>
                 <select
@@ -234,6 +241,17 @@ export default function PresenzePage() {
                   placeholder="0"
                 />
               </div>
+              {editId && (
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Data</label>
+                  <input
+                    type="date"
+                    value={form.editDate || date}
+                    onChange={(e) => setForm({ ...form, editDate: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                </div>
+              )}
             </div>
             {formError && <p className="text-red-500 text-sm mt-2">{formError}</p>}
             <div className="mt-3 flex gap-3">

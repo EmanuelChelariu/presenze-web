@@ -4,6 +4,7 @@ import connectDB from "@/lib/mongodb";
 import Presence from "@/models/Presence";
 import Employee from "@/models/Employee";
 import Site from "@/models/Site";
+import mongoose from "mongoose";
 
 // PUT - modifica presenza
 export async function PUT(req, context) {
@@ -16,7 +17,7 @@ export async function PUT(req, context) {
 
   await connectDB();
 
-  // Controlla duplicato escludendo se stesso
+  // Controlla duplicato escludendo se stesso (usa ObjectId per il confronto)
   if (employeeId && date) {
     const dayStart = new Date(date + "T00:00:00.000Z");
     const dayEnd = new Date(date + "T23:59:59.999Z");
@@ -24,7 +25,7 @@ export async function PUT(req, context) {
     const duplicate = await Presence.findOne({
       employeeId,
       date: { $gte: dayStart, $lte: dayEnd },
-      _id: { $ne: id },
+      _id: { $ne: new mongoose.Types.ObjectId(id) },
     });
 
     if (duplicate) {
