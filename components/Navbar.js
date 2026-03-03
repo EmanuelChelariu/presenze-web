@@ -28,30 +28,30 @@ export default function Navbar() {
   ].filter((l) => l.always || l.show);
 
   return (
-    <nav className="bg-black text-white shadow-lg sticky top-0 z-50">
+    <nav className="bg-gray-950 text-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
         {/* Logo */}
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push("/dashboard")}>
+        <div className="flex items-center gap-3 cursor-pointer shrink-0" onClick={() => router.push("/dashboard")}>
           <Image
             src="/logo.png"
             alt="FC Costruzioni"
-            width={36}
-            height={36}
+            width={32}
+            height={32}
             className="rounded"
           />
-          <span className="font-bold text-sm tracking-wide hidden sm:block">FC COSTRUZIONI</span>
+          <span className="font-bold text-sm tracking-wider hidden lg:block">FC COSTRUZIONI</span>
         </div>
 
         {/* Links */}
-        <div className="flex items-center gap-1 overflow-x-auto">
+        <div className="flex items-center gap-0.5 overflow-x-auto mx-4 scrollbar-hide">
           {links.map((l) => (
             <a
               key={l.href}
               href={l.href}
-              className={`px-3 py-1.5 rounded text-sm font-medium whitespace-nowrap transition ${
+              className={`px-2.5 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all duration-150 ${
                 pathname === l.href
-                  ? "bg-white text-black"
-                  : "text-gray-300 hover:text-white hover:bg-white/10"
+                  ? "bg-teal-600 text-white shadow-sm"
+                  : "text-gray-400 hover:text-white hover:bg-white/10"
               }`}
             >
               {l.label}
@@ -60,13 +60,13 @@ export default function Navbar() {
         </div>
 
         {/* User */}
-        <div className="flex items-center gap-3 ml-2">
-          <span className="text-xs text-gray-400 hidden md:block">
+        <div className="flex items-center gap-3 shrink-0">
+          <span className="text-xs text-gray-500 hidden md:block">
             {session.user?.name}
           </span>
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="text-xs text-gray-400 hover:text-white transition"
+            className="text-xs text-gray-500 hover:text-white transition px-2 py-1 rounded hover:bg-white/10"
           >
             Esci
           </button>
