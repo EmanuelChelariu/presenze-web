@@ -101,20 +101,23 @@ export default function ContabilitaCantieriPage() {
       "TOTALE",
     ]];
 
-    const grandTotal = rows.reduce((s, r) => s + r.totaleDailyAmount + r.totaleOvertimeAmount, 0);
+    const body = rows.map((r) => {
+      const rowTotale = r.totaleDailyAmount + r.totaleOvertimeAmount + r.totaleContributo;
+      return [
+        r.fullName,
+        r.giorni,
+        r.straordinari > 0 ? r.straordinari : "—",
+        fmt(r.dailyRate),
+        fmt(r.totaleDailyAmount),
+        r.straordinari > 0 ? fmt(r.overtimeRate) : "—",
+        r.straordinari > 0 ? fmt(r.totaleOvertimeAmount) : "—",
+        fmt(r.dailyContribution),
+        fmt(r.totaleContributo),
+        fmt(rowTotale),
+      ];
+    });
 
-    const body = rows.map((r) => [
-      r.fullName,
-      r.giorni,
-      r.straordinari > 0 ? r.straordinari : "—",
-      fmt(r.dailyRate),
-      fmt(r.totaleDailyAmount),
-      r.straordinari > 0 ? fmt(r.overtimeRate) : "—",
-      r.straordinari > 0 ? fmt(r.totaleOvertimeAmount) : "—",
-      fmt(r.dailyContribution),
-      fmt(r.totaleContributo),
-      fmt(r.totaleDailyAmount + r.totaleOvertimeAmount),
-    ]);
+    const grandTotal = rows.reduce((s, r) => s + r.totaleDailyAmount + r.totaleOvertimeAmount + r.totaleContributo, 0);
 
     // Riga TOTALE
     body.push([
