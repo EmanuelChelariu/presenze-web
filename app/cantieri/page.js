@@ -29,8 +29,11 @@ export default function CantieriPage() {
         .includes(search.toLowerCase())
     );
 
-  const operativi = filtered.filter((s) => s.operativo).length;
-  const chiusi = filtered.filter((s) => !s.operativo).length;
+  // Cantieri che non contano nel conteggio operativi (restano visibili)
+  const ESCLUSI_CONTEGGIO = ["Corsi Formazione", "Magazzino | Sede"];
+  const conteggioFiltered = filtered.filter((s) => !ESCLUSI_CONTEGGIO.includes(s.name?.trim()));
+  const operativi = conteggioFiltered.filter((s) => s.operativo).length;
+  const chiusi = conteggioFiltered.filter((s) => !s.operativo).length;
 
   async function toggleOperativo(site) {
     await fetch(`/api/sites/${site._id}`, {
@@ -80,7 +83,7 @@ export default function CantieriPage() {
         </div>
 
         <p className="text-sm text-gray-400 mb-4">
-          {filtered.length} cantieri — <span className="text-gray-600 font-medium">{operativi} operativi</span> · <span className="text-gray-600 font-medium">{chiusi} chiusi</span>
+          {conteggioFiltered.length} cantieri — <span className="text-gray-600 font-medium">{operativi} operativi</span> · <span className="text-gray-600 font-medium">{chiusi} chiusi</span>
         </p>
 
         {/* Lista */}
