@@ -25,6 +25,7 @@ export default function Navbar() {
     { href: "/rimborsi", label: "Rimborsi", show: isAdmin },
     { href: "/dipendenti", label: "Dipendenti", show: isAdmin },
     { href: "/cantieri", label: "Cantieri", show: isAdmin },
+    { href: "/utenti", label: "Utenti", show: isAdmin },
   ].filter((l) => l.always || l.show);
 
   return (
@@ -61,9 +62,14 @@ export default function Navbar() {
 
         {/* User */}
         <div className="flex items-center gap-3 shrink-0">
-          <span className="text-xs text-gray-500 hidden md:block">
+          <a
+            href="/profilo"
+            className={`text-xs hidden md:block transition ${
+              pathname === "/profilo" ? "text-teal-400 font-medium" : "text-gray-500 hover:text-white"
+            }`}
+          >
             {session.user?.name}
-          </span>
+          </a>
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
             className="text-xs text-gray-500 hover:text-white transition px-2 py-1 rounded hover:bg-white/10"
