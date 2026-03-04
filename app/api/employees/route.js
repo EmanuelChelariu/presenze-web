@@ -22,10 +22,13 @@ export async function GET() {
 }
 
 export async function POST(req) {
+  let step = "init";
   try {
+    step = "session";
     const session = await getServerSession(authOptions);
     if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
 
+    step = "parse-body";
     const body = await req.json();
     const {
       firstName, lastName, badgeId, phone, email,
@@ -33,15 +36,19 @@ export async function POST(req) {
       dailyContribution, active,
     } = body;
 
+    step = "validate";
     if (!firstName || !lastName || !badgeId || !companyId) {
       return Response.json({ error: "Campi obbligatori mancanti" }, { status: 400 });
     }
 
+    step = "connectDB";
     await connectDB();
 
+    step = "check-badge";
     const existing = await Employee.findOne({ badgeId: badgeId.toUpperCase() });
     if (existing) return Response.json({ error: "Badge già esistente" }, { status: 400 });
 
+    step = "create";
     const employee = await Employee.create({
       firstName, lastName,
       fullName: `${firstName} ${lastName}`.trim(),
@@ -56,9 +63,10 @@ export async function POST(req) {
       ratesEffectiveFrom: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
     });
 
+    step = "response";
     return Response.json(employee, { status: 201 });
   } catch (err) {
-    console.error("[API] POST /api/employees error:", err);
-    return Response.json({ error: err.message || "Errore interno del server" }, { status: 500 });
+    console.error(`[API] POST /api/employees error at "${step}":`, err);
+    return Response.json({ error: `[${step}] ${err.message}` }, { status: 500 });
   }
 }
