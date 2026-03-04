@@ -35,17 +35,34 @@ export default function NuovoDipendentePage() {
     setError("");
     setLoading(true);
 
-    const res = await fetch("/api/employees", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      const res = await fetch("/api/employees", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    const data = await res.json();
-    setLoading(false);
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        setError("Errore del server (risposta non valida). Riprova.");
+        setLoading(false);
+        return;
+      }
 
-    if (!res.ok) setError(data.error || "Errore durante il salvataggio");
-    else router.push("/dipendenti");
+      if (!res.ok) {
+        setError(data.error || "Errore durante il salvataggio");
+        setLoading(false);
+        return;
+      }
+
+      router.push("/dipendenti");
+    } catch (err) {
+      console.error("Errore salvataggio dipendente:", err);
+      setError("Errore di rete. Controlla la connessione e riprova.");
+      setLoading(false);
+    }
   }
 
   const inputClass = "w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
