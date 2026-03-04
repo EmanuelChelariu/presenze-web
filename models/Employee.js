@@ -25,9 +25,8 @@ const EmployeeSchema = new mongoose.Schema(
 );
 
 // Genera fullName automaticamente
-EmployeeSchema.pre("save", function (next) {
+EmployeeSchema.pre("save", function () {
   this.fullName = `${this.firstName} ${this.lastName}`.trim();
-  next();
 });
 
 export default mongoose.models.Employee || mongoose.model("Employee", EmployeeSchema);
