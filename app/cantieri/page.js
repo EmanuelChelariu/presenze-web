@@ -18,7 +18,11 @@ export default function CantieriPage() {
   useEffect(() => {
     fetch("/api/sites")
       .then((r) => r.json())
-      .then((data) => { setSites(data); setLoading(false); });
+      .then((data) => {
+        if (Array.isArray(data)) setSites(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   const filtered = sites

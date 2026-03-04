@@ -22,7 +22,11 @@ export default function DipendentiPage() {
   useEffect(() => {
     fetch("/api/employees")
       .then((r) => r.json())
-      .then((data) => { setEmployees(data); setLoading(false); });
+      .then((data) => {
+        if (Array.isArray(data)) setEmployees(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   const filtered = employees.filter((e) =>
