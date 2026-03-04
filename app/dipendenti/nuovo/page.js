@@ -45,22 +45,14 @@ export default function NuovoDipendentePage() {
         body: JSON.stringify(form),
       });
 
-      let data;
-      try {
-        data = await res.json();
-      } catch {
-        setError("Errore del server (risposta non valida). Riprova.");
-        setLoading(false);
-        return;
-      }
+      const data = await res.json();
+      setLoading(false);
 
       if (!res.ok) {
         setError(data.error || "Errore durante il salvataggio");
-        setLoading(false);
-        return;
+      } else {
+        router.push("/dipendenti");
       }
-
-      router.push("/dipendenti");
     } catch (err) {
       console.error("Errore salvataggio dipendente:", err);
       setError("Errore di rete. Controlla la connessione e riprova.");
