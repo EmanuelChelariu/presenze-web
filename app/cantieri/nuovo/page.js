@@ -16,7 +16,7 @@ export default function NuovoCantiereePage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch("/api/companies").then((r) => r.json()).then(setCompanies);
+    fetch("/api/companies").then((r) => r.json()).then((data) => { if (Array.isArray(data)) setCompanies(data); }).catch(() => {});
   }, []);
 
   function set(field, value) {

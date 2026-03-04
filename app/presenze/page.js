@@ -47,9 +47,9 @@ export default function PresenzePage() {
   // Carica cantieri e dipendenti all'avvio
   useEffect(() => {
     fetch("/api/sites").then((r) => r.json()).then((data) => {
-      setSites(data.filter((s) => s.operativo));
-    });
-    fetch("/api/employees").then((r) => r.json()).then(setEmployees);
+      if (Array.isArray(data)) setSites(data.filter((s) => s.operativo));
+    }).catch(() => {});
+    fetch("/api/employees").then((r) => r.json()).then((data) => { if (Array.isArray(data)) setEmployees(data); }).catch(() => {});
   }, []);
 
   // Carica TUTTE le presenze del giorno (tutti i cantieri)

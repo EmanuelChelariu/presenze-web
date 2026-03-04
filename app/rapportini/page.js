@@ -38,7 +38,7 @@ export default function RapportiniPage() {
 
   // Carica cantieri
   useEffect(() => {
-    fetch("/api/sites").then((r) => r.json()).then(setSites);
+    fetch("/api/sites").then((r) => r.json()).then((data) => { if (Array.isArray(data)) setSites(data); }).catch(() => {});
   }, []);
 
   // Carica rapportini del giorno

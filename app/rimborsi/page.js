@@ -40,8 +40,8 @@ export default function RimborsiPage() {
   const [editNote, setEditNote] = useState("");
 
   useEffect(() => {
-    fetch("/api/employees").then(r => r.json()).then(setEmployees);
-    fetch("/api/sites").then(r => r.json()).then(setSites);
+    fetch("/api/employees").then(r => r.json()).then((data) => { if (Array.isArray(data)) setEmployees(data); }).catch(() => {});
+    fetch("/api/sites").then(r => r.json()).then((data) => { if (Array.isArray(data)) setSites(data); }).catch(() => {});
   }, []);
 
   useEffect(() => { loadRimborsi(); }, [month]);

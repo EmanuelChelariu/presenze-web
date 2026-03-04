@@ -12,7 +12,7 @@ export default function ModificaCantiereePage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch("/api/companies").then(r => r.json()).then(setCompanies);
+    fetch("/api/companies").then(r => r.json()).then((data) => { if (Array.isArray(data)) setCompanies(data); }).catch(() => {});
     fetch(`/api/sites/${id}`).then(r => r.json()).then(data => {
       setForm({
         name: data.name || "",
