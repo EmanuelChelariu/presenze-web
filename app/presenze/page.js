@@ -156,18 +156,19 @@ export default function PresenzePage() {
 
   // QR Scan handler
   function handleQRScan(decodedText) {
-    const found = employees.find((e) => String(e._id) === decodedText);
+    const cleanId = (decodedText || "").trim();
+    const found = employees.find((e) => String(e._id) === cleanId);
     if (!found) {
       alert("Dipendente non trovato. Il QR code potrebbe non essere valido.");
       setShowScanner(false);
       return;
     }
-    if (presentIds.has(decodedText)) {
-      alert(`${found.firstName} ${found.lastName} ha gia una presenza inserita per oggi.`);
+    if (presentIds.has(cleanId)) {
+      alert(`${found.firstName} ${found.lastName} ha già una presenza inserita per oggi.`);
       setShowScanner(false);
       return;
     }
-    setForm((prev) => ({ ...prev, employeeId: decodedText }));
+    setForm((prev) => ({ ...prev, employeeId: cleanId }));
     setShowForm(true);
     setEditId(null);
     setShowScanner(false);
