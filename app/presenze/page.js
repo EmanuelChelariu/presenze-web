@@ -71,11 +71,11 @@ export default function PresenzePage() {
     ? employees // in edit mode mostra tutti
     : employees.filter((e) => !presentIds.has(String(e._id)));
 
-  function resetForm() {
-    setForm({ employeeId: "", siteId: "", status: "Presente", overtimeHours: "" });
+  function resetForm(keepOpen = false) {
+    setForm((prev) => ({ employeeId: "", siteId: prev.siteId, status: "Presente", overtimeHours: "" }));
     setFormError("");
     setEditId(null);
-    setShowForm(false);
+    setShowForm(keepOpen);
   }
 
   function startEdit(p) {
@@ -126,7 +126,7 @@ export default function PresenzePage() {
       setSaving(false);
       if (!res.ok) { setFormError(data.error || "Errore"); return; }
       setPresences((prev) => [...prev, data].sort((a, b) => (a.employeeName || "").localeCompare(b.employeeName || "")));
-      resetForm();
+      resetForm(true);
     }
   }
 
@@ -201,7 +201,7 @@ export default function PresenzePage() {
                 >
                   <option value="">Seleziona dipendente...</option>
                   {availableEmployees.map((e) => (
-                    <option key={e._id} value={e._id}>{e.lastName} {e.firstName}</option>
+                    <option key={e._id} value={e._id}>{e.firstName} {e.lastName}</option>
                   ))}
                 </select>
               </div>
