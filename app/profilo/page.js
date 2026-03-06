@@ -7,8 +7,8 @@ import { useRouter } from "next/navigation";
 const ROLE_LABELS = {
   admin: "Amministratore",
   ufficio: "Ufficio",
-  "Supervisore Cantieri": "Supervisore Cantieri",
-  "Capo Squadra": "Capo Squadra",
+  inserimento: "Inserimento Presenze",
+  operaio: "Operaio",
 };
 
 export default function ProfiloPage() {

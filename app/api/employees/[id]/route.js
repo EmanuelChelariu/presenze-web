@@ -9,6 +9,9 @@ export async function GET(req, context) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
+    if (!["admin", "ufficio"].includes(session.user.role)) {
+      return Response.json({ error: "Accesso negato" }, { status: 403 });
+    }
 
     const { id } = await context.params;
     await connectDB();
@@ -26,6 +29,9 @@ export async function PUT(req, context) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
+    if (!["admin", "ufficio"].includes(session.user.role)) {
+      return Response.json({ error: "Accesso negato" }, { status: 403 });
+    }
 
     const { id } = await context.params;
     const body = await req.json();
@@ -73,6 +79,9 @@ export async function DELETE(req, context) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
+    if (!["admin", "ufficio"].includes(session.user.role)) {
+      return Response.json({ error: "Accesso negato" }, { status: 403 });
+    }
 
     const { id } = await context.params;
     await connectDB();

@@ -7,6 +7,9 @@ import Presence from "@/models/Presence";
 export async function GET(req) {
   const session = await getServerSession(authOptions);
   if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
+  if (!["admin", "ufficio", "inserimento"].includes(session.user.role)) {
+    return Response.json({ error: "Accesso negato" }, { status: 403 });
+  }
 
   const { searchParams } = new URL(req.url);
   const month = searchParams.get("month"); // es. "2026-03"

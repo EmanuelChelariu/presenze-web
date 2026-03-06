@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 
 const ROLES = [
   { value: "admin", label: "Admin — Accesso completo a tutte le funzionalità" },
-  { value: "ufficio", label: "Ufficio — Contabilità mensile e cantieri" },
-  { value: "Supervisore Cantieri", label: "Supervisore Cantieri — Presenze e rapportini" },
-  { value: "Capo Squadra", label: "Capo Squadra — Presenze e rapportini" },
+  { value: "ufficio", label: "Ufficio — Tutto tranne gestione utenti" },
+  { value: "inserimento", label: "Inserimento — Presenze, rapportini, rimborsi" },
+  { value: "operaio", label: "Operaio — Solo visualizzazione proprie presenze" },
 ];
 
 const emptyForm = { name: "", email: "", password: "", role: "" };
@@ -94,9 +94,10 @@ export default function NuovoUtentePage() {
           </div>
 
           <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-500 space-y-1">
-            <p><strong>Admin</strong> — Vede tutto: presenze, contabilità, dipendenti, cantieri, rimborsi, utenti</p>
-            <p><strong>Ufficio</strong> — Contabilità mensile e per cantieri, totali presenze</p>
-            <p><strong>Supervisore / Capo Squadra</strong> — Inserimento presenze e rapportini</p>
+            <p><strong>Admin</strong> — Accesso completo: presenze, contabilità, dipendenti, cantieri, rimborsi, utenti</p>
+            <p><strong>Ufficio</strong> — Vede e gestisce tutto tranne la sezione Utenti</p>
+            <p><strong>Inserimento</strong> — Inserisce presenze, rapportini, rimborsi; visualizza totali</p>
+            <p><strong>Operaio</strong> — Visualizza solo le proprie presenze. Richiede email corrispondente a un dipendente</p>
           </div>
 
           {error && <p className="text-red-500 text-sm">{error}</p>}

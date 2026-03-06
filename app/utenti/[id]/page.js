@@ -6,8 +6,8 @@ import { useRouter, useParams } from "next/navigation";
 const ROLES = [
   { value: "admin", label: "Admin" },
   { value: "ufficio", label: "Ufficio" },
-  { value: "Supervisore Cantieri", label: "Supervisore Cantieri" },
-  { value: "Capo Squadra", label: "Capo Squadra" },
+  { value: "inserimento", label: "Inserimento Presenze" },
+  { value: "operaio", label: "Operaio" },
 ];
 
 export default function ModificaUtentePage() {

@@ -8,13 +8,18 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: {
       type: String,
-      enum: ["admin", "ufficio", "Supervisore Cantieri", "Capo Squadra"],
-      default: "Capo Squadra",
+      enum: ["admin", "ufficio", "inserimento", "operaio"],
+      default: "inserimento",
     },
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
       required: true,
+    },
+    employeeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Employee",
+      default: null,
     },
     active: { type: Boolean, default: true },
   },

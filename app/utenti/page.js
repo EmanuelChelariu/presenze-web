@@ -11,15 +11,15 @@ function fmtDate(d) {
 const ROLE_LABELS = {
   admin: "Admin",
   ufficio: "Ufficio",
-  "Supervisore Cantieri": "Supervisore",
-  "Capo Squadra": "Capo Squadra",
+  inserimento: "Inserimento",
+  operaio: "Operaio",
 };
 
 const ROLE_COLORS = {
   admin: "bg-purple-100 text-purple-700",
   ufficio: "bg-blue-100 text-blue-700",
-  "Supervisore Cantieri": "bg-amber-100 text-amber-700",
-  "Capo Squadra": "bg-teal-100 text-teal-700",
+  inserimento: "bg-amber-100 text-amber-700",
+  operaio: "bg-teal-100 text-teal-700",
 };
 
 export default function UtentiPage() {

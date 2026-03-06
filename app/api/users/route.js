@@ -52,6 +52,20 @@ export async function POST(req) {
       active: true,
     });
 
+    // Auto-link operaio to employee by email
+    if (role === "operaio") {
+      const Employee = (await import("@/models/Employee")).default;
+      const matchingEmployee = await Employee.findOne({
+        email: email.toLowerCase().trim(),
+        companyId: session.user.companyId,
+        active: true,
+      });
+      if (matchingEmployee) {
+        user.employeeId = matchingEmployee._id;
+        await user.save();
+      }
+    }
+
     const { password: _, ...userObj } = user.toObject();
     return Response.json(userObj, { status: 201 });
   } catch (err) {

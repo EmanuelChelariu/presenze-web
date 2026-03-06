@@ -5,6 +5,7 @@ import connectDB from "@/lib/mongodb";
 import Employee from "@/models/Employee";
 import Site from "@/models/Site";
 import Presence from "@/models/Presence";
+import { ROLE_LABELS } from "@/lib/roles";
 
 const RUOLI_UFFICIO = ["Amministrazione Ufficio", "Legale Rappresentante", "Segreteria tecnica"];
 
@@ -39,10 +40,13 @@ export default async function DashboardPage() {
   if (!session) redirect("/login");
 
   const role = session.user.role;
+
+  // Operaio: redirect alla pagina dedicata
+  if (role === "operaio") redirect("/operaio");
+
   const isAdmin = role === "admin";
   const isUfficio = role === "ufficio";
-  const isSupervisore = role === "Supervisore Cantieri";
-  const isCapoSquadra = role === "Capo Squadra";
+  const isInserimento = role === "inserimento";
 
   const stats = isAdmin || isUfficio ? await getStats() : null;
 
@@ -52,6 +56,8 @@ export default async function DashboardPage() {
     month: "long",
     year: "numeric",
   });
+
+  const roleLabel = ROLE_LABELS[role] || role;
 
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8">
@@ -69,7 +75,7 @@ export default async function DashboardPage() {
             <div className="text-right hidden sm:block">
               <p className="text-sm font-medium text-gray-700">{session.user.companyName}</p>
               <span className="inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-medium bg-teal-50 text-teal-700 border border-teal-200">
-                {role}
+                {roleLabel}
               </span>
             </div>
           </div>
@@ -86,10 +92,10 @@ export default async function DashboardPage() {
         )}
 
         {/* Navigazione — sezione operativa */}
-        <div className="mb-6">
-          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Operatività</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {(isAdmin || isSupervisore || isCapoSquadra) && (
+        {(isAdmin || isUfficio || isInserimento) && (
+          <div className="mb-6">
+            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Operatività</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <NavCard
                 href="/presenze"
                 title="Inserimento Presenze"
@@ -97,8 +103,6 @@ export default async function DashboardPage() {
                 icon={<IconClipboard />}
                 accent="teal"
               />
-            )}
-            {(isAdmin || isUfficio || isSupervisore || isCapoSquadra) && (
               <NavCard
                 href="/totali"
                 title="Totale Presenze"
@@ -106,8 +110,6 @@ export default async function DashboardPage() {
                 icon={<IconChart />}
                 accent="teal"
               />
-            )}
-            {(isAdmin || isSupervisore || isCapoSquadra) && (
               <NavCard
                 href="/rapportini"
                 title="Rapportini"
@@ -115,9 +117,16 @@ export default async function DashboardPage() {
                 icon={<IconDocument />}
                 accent="teal"
               />
-            )}
+              <NavCard
+                href="/rimborsi"
+                title="Rimborsi e Trattenute"
+                desc="Gestione rimborsi e trattenute"
+                icon={<IconCreditCard />}
+                accent="teal"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Navigazione — sezione contabilità */}
         {(isAdmin || isUfficio) && (
@@ -138,21 +147,12 @@ export default async function DashboardPage() {
                 icon={<IconBuilding />}
                 accent="emerald"
               />
-              {isAdmin && (
-                <NavCard
-                  href="/rimborsi"
-                  title="Rimborsi e Trattenute"
-                  desc="Gestione rimborsi e trattenute"
-                  icon={<IconCreditCard />}
-                  accent="emerald"
-                />
-              )}
             </div>
           </div>
         )}
 
         {/* Navigazione — sezione anagrafica */}
-        {isAdmin && (
+        {(isAdmin || isUfficio) && (
           <div className="mb-6">
             <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Anagrafica</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -170,13 +170,15 @@ export default async function DashboardPage() {
                 icon={<IconHardHat />}
                 accent="slate"
               />
-              <NavCard
-                href="/utenti"
-                title="Utenti"
-                desc="Account, ruoli e permessi di accesso"
-                icon={<IconShield />}
-                accent="slate"
-              />
+              {isAdmin && (
+                <NavCard
+                  href="/utenti"
+                  title="Utenti"
+                  desc="Account, ruoli e permessi di accesso"
+                  icon={<IconShield />}
+                  accent="slate"
+                />
+              )}
             </div>
           </div>
         )}

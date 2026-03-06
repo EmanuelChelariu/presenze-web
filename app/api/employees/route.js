@@ -8,6 +8,9 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
+    if (!["admin", "ufficio", "inserimento"].includes(session.user.role)) {
+      return Response.json({ error: "Accesso negato" }, { status: 403 });
+    }
 
     await connectDB();
     const employees = await Employee.find({ active: true })
@@ -25,6 +28,9 @@ export async function POST(req) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
+    if (!["admin", "ufficio"].includes(session.user.role)) {
+      return Response.json({ error: "Accesso negato" }, { status: 403 });
+    }
 
     const body = await req.json();
     const {

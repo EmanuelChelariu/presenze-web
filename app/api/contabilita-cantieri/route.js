@@ -34,6 +34,9 @@ function calcTotal(presences, empById) {
 export async function GET(req) {
   const session = await getServerSession(authOptions);
   if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
+  if (!["admin", "ufficio"].includes(session.user.role)) {
+    return Response.json({ error: "Accesso negato" }, { status: 403 });
+  }
 
   const { searchParams } = new URL(req.url);
   const siteId = searchParams.get("siteId");

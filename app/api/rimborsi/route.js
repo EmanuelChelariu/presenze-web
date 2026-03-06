@@ -10,6 +10,9 @@ export async function GET(req) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
+    if (!["admin", "ufficio", "inserimento"].includes(session.user.role)) {
+      return Response.json({ error: "Accesso negato" }, { status: 403 });
+    }
 
     const { searchParams } = new URL(req.url);
     const month = searchParams.get("month");
@@ -34,6 +37,9 @@ export async function POST(req) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
+    if (!["admin", "ufficio", "inserimento"].includes(session.user.role)) {
+      return Response.json({ error: "Accesso negato" }, { status: 403 });
+    }
 
     const body = await req.json();
     const { employeeId, siteId, date, amount, note } = body;

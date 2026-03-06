@@ -8,6 +8,9 @@ import Site from "@/models/Site";
 export async function PUT(req, { params }) {
   const session = await getServerSession(authOptions);
   if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
+  if (!["admin", "ufficio", "inserimento"].includes(session.user.role)) {
+    return Response.json({ error: "Accesso negato" }, { status: 403 });
+  }
 
   const { id } = await params;
   const body = await req.json();
@@ -36,6 +39,9 @@ export async function PUT(req, { params }) {
 export async function DELETE(req, { params }) {
   const session = await getServerSession(authOptions);
   if (!session) return Response.json({ error: "Non autorizzato" }, { status: 401 });
+  if (!["admin", "ufficio", "inserimento"].includes(session.user.role)) {
+    return Response.json({ error: "Accesso negato" }, { status: 403 });
+  }
 
   const { id } = await params;
 
