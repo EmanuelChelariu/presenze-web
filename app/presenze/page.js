@@ -38,7 +38,6 @@ export default function PresenzePage() {
 
   // Filtri PDF
   const [pdfSiteId, setPdfSiteId] = useState("");
-  const [pdfCompanyId, setPdfCompanyId] = useState("");
 
   // Form nuovo inserimento
   const [showForm, setShowForm] = useState(false);
@@ -148,108 +147,110 @@ export default function PresenzePage() {
     setPresences((prev) => prev.filter((p) => p._id !== id));
   }
 
-  // ── PDF Export ──
+  // ── PDF Export — una pagina per ogni ditta ──
   async function exportPDF() {
-    // Filtra presenze per cantiere e azienda
+    // Filtra presenze per cantiere
     let filtered = [...presences];
 
     if (pdfSiteId) {
       filtered = filtered.filter((p) => String(p.siteId) === pdfSiteId);
     }
 
-    if (pdfCompanyId) {
-      // Filtra direttamente per companyId sulla presenza,
-      // oppure cross-reference con employees (companyId è populated come {_id, name})
-      const companyEmployeeIds = new Set(
-        employees
-          .filter((e) => String(e.companyId?._id || e.companyId) === pdfCompanyId)
-          .map((e) => String(e._id))
-      );
-      filtered = filtered.filter(
-        (p) => String(p.companyId) === pdfCompanyId || companyEmployeeIds.has(String(p.employeeId))
-      );
-    }
-
     if (filtered.length === 0) {
-      alert("Nessuna presenza trovata con i filtri selezionati.");
+      alert("Nessuna presenza trovata per questo cantiere.");
       return;
     }
+
+    // Raggruppa per azienda (companyName)
+    const grouped = {};
+    for (const p of filtered) {
+      const key = p.companyName || "Senza Azienda";
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(p);
+    }
+    // Ordina le aziende alfabeticamente
+    const companyNames = Object.keys(grouped).sort();
 
     const { jsPDF } = await import("jspdf");
     const { default: autoTable } = await import("jspdf-autotable");
 
     const doc = new jsPDF("portrait");
-
-    // Nomi per header
-    const companyName = pdfCompanyId
-      ? companies.find((c) => String(c._id) === pdfCompanyId)?.name || ""
-      : "Tutte le Aziende";
     const siteName = pdfSiteId
       ? sites.find((s) => String(s._id) === pdfSiteId)?.name || ""
       : "Tutti i Cantieri";
     const formattedDate = fmtDateLong(date);
+    const pageH = doc.internal.pageSize.height;
 
-    // Header azienda
-    doc.setFontSize(16);
-    doc.setFont("helvetica", "bold");
-    doc.text(companyName, 105, 20, { align: "center" });
+    companyNames.forEach((companyName, idx) => {
+      // Nuova pagina per ogni ditta (tranne la prima)
+      if (idx > 0) doc.addPage();
 
-    // Titolo documento
-    doc.setFontSize(13);
-    doc.text("FOGLIO PRESENZE GIORNALIERO", 105, 30, { align: "center" });
+      const rows = grouped[companyName];
 
-    // Info
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Data: ${formattedDate}`, 14, 42);
-    doc.text(`Cantiere: ${siteName}`, 14, 48);
+      // Header azienda
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(0);
+      doc.text(companyName, 105, 20, { align: "center" });
 
-    // Tabella
-    const tableData = filtered.map((p, i) => [
-      i + 1,
-      p.employeeName || "—",
-      p.status || "—",
-    ]);
+      // Titolo
+      doc.setFontSize(13);
+      doc.text("FOGLIO PRESENZE GIORNALIERO", 105, 30, { align: "center" });
 
-    autoTable(doc, {
-      startY: 55,
-      head: [["#", "Nome e Cognome", "Stato"]],
-      body: tableData,
-      theme: "grid",
-      headStyles: {
-        fillColor: [41, 41, 41],
-        textColor: 255,
-        fontStyle: "bold",
-        fontSize: 10,
-      },
-      bodyStyles: { fontSize: 9 },
-      alternateRowStyles: { fillColor: [245, 245, 245] },
-      columnStyles: {
-        0: { cellWidth: 12, halign: "center" },
-        1: { cellWidth: 120 },
-        2: { cellWidth: 50, halign: "center" },
-      },
+      // Info
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Data: ${formattedDate}`, 14, 42);
+      doc.text(`Cantiere: ${siteName}`, 14, 48);
+
+      // Tabella
+      const tableData = rows.map((p, i) => [
+        i + 1,
+        p.employeeName || "—",
+        p.status || "—",
+      ]);
+
+      autoTable(doc, {
+        startY: 55,
+        head: [["#", "Nome e Cognome", "Stato"]],
+        body: tableData,
+        theme: "grid",
+        headStyles: {
+          fillColor: [41, 41, 41],
+          textColor: 255,
+          fontStyle: "bold",
+          fontSize: 10,
+        },
+        bodyStyles: { fontSize: 9 },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        columnStyles: {
+          0: { cellWidth: 12, halign: "center" },
+          1: { cellWidth: 120 },
+          2: { cellWidth: 50, halign: "center" },
+        },
+      });
+
+      // Footer
+      const finalY = doc.lastAutoTable.finalY + 12;
+      const totalePresenti = rows.filter((p) => p.status === "Presente").length;
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(0);
+      doc.text(`Totale presenti: ${totalePresenti}`, 14, finalY);
+
+      doc.setFont("helvetica", "normal");
+      doc.text("Responsabile: ___________________________", 14, finalY + 12);
+
+      // Timestamp
+      doc.setFontSize(7);
+      doc.setTextColor(150);
+      doc.text(
+        `Generato il ${new Date().toLocaleString("it-IT")}`,
+        105,
+        pageH - 10,
+        { align: "center" }
+      );
     });
-
-    // Footer
-    const finalY = doc.lastAutoTable.finalY + 12;
-    const totalePresenti = filtered.filter((p) => p.status === "Presente").length;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text(`Totale presenti: ${totalePresenti}`, 14, finalY);
-
-    doc.setFont("helvetica", "normal");
-    doc.text("Responsabile: ___________________________", 14, finalY + 12);
-
-    // Timestamp piccolo in basso
-    doc.setFontSize(7);
-    doc.setTextColor(150);
-    doc.text(
-      `Generato il ${new Date().toLocaleString("it-IT")}`,
-      105,
-      doc.internal.pageSize.height - 10,
-      { align: "center" }
-    );
 
     // Salva
     const dateStr = date.replace(/-/g, "");
@@ -307,7 +308,7 @@ export default function PresenzePage() {
         {/* Sezione Stampa PDF */}
         <div className="bg-white rounded-xl shadow p-4 mb-4">
           <h2 className="text-sm font-semibold text-gray-700 mb-3">🖨️ Stampa PDF Presenze del Giorno</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
             <div>
               <label className="block text-xs text-gray-500 mb-1">Cantiere</label>
               <select
@@ -321,19 +322,6 @@ export default function PresenzePage() {
                 ))}
               </select>
             </div>
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">Azienda / Ditta</label>
-              <select
-                value={pdfCompanyId}
-                onChange={(e) => setPdfCompanyId(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-              >
-                <option value="">Tutte le aziende</option>
-                {companies.map((c) => (
-                  <option key={c._id} value={c._id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
             <button
               onClick={exportPDF}
               disabled={presences.length === 0}
@@ -342,6 +330,7 @@ export default function PresenzePage() {
               📄 Stampa PDF
             </button>
           </div>
+          <p className="text-xs text-gray-400 mt-2">Genera una pagina per ogni ditta presente nel cantiere</p>
         </div>
 
         {/* Form aggiunta / modifica presenza */}
