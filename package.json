@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "html5-qrcode": "^2.3.8",
     "jspdf": "^4.2.0",
     "jspdf-autotable": "^5.0.7",
     "mongoose": "^9.2.3",
     "next": "16.1.6",
     "next-auth": "^4.24.13",
+    "qrcode": "^1.5.4",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },

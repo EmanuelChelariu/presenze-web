@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+
+const QRScannerModal = dynamic(() => import("@/components/QRScannerModal"), { ssr: false });
 
 const STATUS_OPTIONS = ["Presente", "Assente", "Malattia", "Ferie", "Infortunio"];
 
@@ -38,6 +41,9 @@ export default function PresenzePage() {
 
   // Filtri PDF
   const [pdfSiteId, setPdfSiteId] = useState("");
+
+  // QR Scanner
+  const [showScanner, setShowScanner] = useState(false);
 
   // Form nuovo inserimento
   const [showForm, setShowForm] = useState(false);
@@ -146,6 +152,25 @@ export default function PresenzePage() {
     if (!confirm("Eliminare questa presenza?")) return;
     await fetch(`/api/presences/${id}`, { method: "DELETE" });
     setPresences((prev) => prev.filter((p) => p._id !== id));
+  }
+
+  // QR Scan handler
+  function handleQRScan(decodedText) {
+    const found = employees.find((e) => String(e._id) === decodedText);
+    if (!found) {
+      alert("Dipendente non trovato. Il QR code potrebbe non essere valido.");
+      setShowScanner(false);
+      return;
+    }
+    if (presentIds.has(decodedText)) {
+      alert(`${found.firstName} ${found.lastName} ha gia una presenza inserita per oggi.`);
+      setShowScanner(false);
+      return;
+    }
+    setForm((prev) => ({ ...prev, employeeId: decodedText }));
+    setShowForm(true);
+    setEditId(null);
+    setShowScanner(false);
   }
 
   // ── PDF Export — una pagina per ogni ditta ──
@@ -290,8 +315,8 @@ export default function PresenzePage() {
           />
         </div>
 
-        {/* Pulsanti azione — allineati e simmetrici */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        {/* Pulsanti azione */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
           <button
             onClick={() => { if (editId) resetForm(); else setShowForm(!showForm); }}
             className="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-black hover:text-black transition text-center"
@@ -299,10 +324,16 @@ export default function PresenzePage() {
             {editId ? "✕ Annulla Modifica" : showForm ? "✕ Chiudi Form" : "⊕ Nuova Presenza"}
           </button>
           <button
+            onClick={() => setShowScanner(true)}
+            className="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-black hover:text-black transition text-center"
+          >
+            QR Code
+          </button>
+          <button
             onClick={() => router.push("/rimborsi")}
             className="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-black hover:text-black transition text-center"
           >
-            ⊕ Aggiungi Rimborso/Trattenuta
+            ⊕ Rimborso/Tratt.
           </button>
           <button
             onClick={() => router.push("/rapportini")}
@@ -520,6 +551,13 @@ export default function PresenzePage() {
         </div>
 
       </div>
+
+      {/* QR Scanner Modal */}
+      <QRScannerModal
+        isOpen={showScanner}
+        onClose={() => setShowScanner(false)}
+        onScan={handleQRScan}
+      />
     </div>
   );
 }

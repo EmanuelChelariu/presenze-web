@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import QRCodeCard from "@/components/QRCodeCard";
 
 export default function ModificaDipendentePage() {
   const router = useRouter();
@@ -11,10 +12,13 @@ export default function ModificaDipendentePage() {
   const [originalRates, setOriginalRates] = useState({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [employeeData, setEmployeeData] = useState(null);
+  const [showQR, setShowQR] = useState(false);
 
   useEffect(() => {
     fetch("/api/companies").then(r => r.json()).then((data) => { if (Array.isArray(data)) setCompanies(data); }).catch(() => {});
     fetch(`/api/employees/${id}`).then(r => r.json()).then(data => {
+      setEmployeeData(data);
       setForm({
         firstName: data.firstName || "",
         lastName: data.lastName || "",
@@ -152,6 +156,24 @@ export default function ModificaDipendentePage() {
             </button>
           </div>
         </form>
+
+        {/* QR Code */}
+        <button
+          type="button"
+          onClick={() => setShowQR(!showQR)}
+          className="w-full mt-4 border-2 border-gray-200 text-gray-700 py-2.5 rounded-xl font-medium hover:border-black hover:text-black transition text-sm"
+        >
+          {showQR ? "Nascondi QR Code" : "Genera QR Code"}
+        </button>
+
+        {showQR && employeeData && (
+          <QRCodeCard
+            employeeId={String(employeeData._id)}
+            employeeName={`${employeeData.lastName} ${employeeData.firstName}`}
+            badgeId={employeeData.badgeId}
+            companyName={employeeData.companyId?.name || ""}
+          />
+        )}
       </div>
     </div>
   );
