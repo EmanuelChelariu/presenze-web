@@ -207,23 +207,17 @@ export default function OperaioPage() {
 
             {/* Riepilogo mese */}
             {data?.presences?.length > 0 && (
-              <div className="mt-3 bg-gray-50 rounded-xl p-4 grid grid-cols-3 gap-3 text-center">
+              <div className="mt-3 bg-gray-50 rounded-xl p-4 grid grid-cols-2 gap-3 text-center">
                 <div>
-                  <p className="text-xs text-gray-400">Presenze</p>
+                  <p className="text-xs text-gray-400">Presente</p>
                   <p className="text-lg font-bold text-green-700">
                     {data.presences.filter((p) => p.status === "Presente").length}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400">Assenze</p>
+                  <p className="text-xs text-gray-400">Assente</p>
                   <p className="text-lg font-bold text-red-600">
-                    {data.presences.filter((p) => ["Assente", "Malattia", "Infortunio"].includes(p.status)).length}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400">Ferie</p>
-                  <p className="text-lg font-bold text-blue-600">
-                    {data.presences.filter((p) => p.status === "Ferie").length}
+                    {data.presences.filter((p) => p.status === "Assente").length}
                   </p>
                 </div>
               </div>
