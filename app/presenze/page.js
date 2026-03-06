@@ -34,6 +34,11 @@ export default function PresenzePage() {
   const [employees, setEmployees] = useState([]);
   const [presences, setPresences] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [companies, setCompanies] = useState([]);
+
+  // Filtri PDF
+  const [pdfSiteId, setPdfSiteId] = useState("");
+  const [pdfCompanyId, setPdfCompanyId] = useState("");
 
   // Form nuovo inserimento
   const [showForm, setShowForm] = useState(false);
@@ -50,6 +55,7 @@ export default function PresenzePage() {
       if (Array.isArray(data)) setSites(data.filter((s) => s.operativo));
     }).catch(() => {});
     fetch("/api/employees").then((r) => r.json()).then((data) => { if (Array.isArray(data)) setEmployees(data); }).catch(() => {});
+    fetch("/api/companies").then((r) => r.json()).then((data) => { if (Array.isArray(data)) setCompanies(data); }).catch(() => {});
   }, []);
 
   // Carica TUTTE le presenze del giorno (tutti i cantieri)
@@ -136,6 +142,109 @@ export default function PresenzePage() {
     setPresences((prev) => prev.filter((p) => p._id !== id));
   }
 
+  // ── PDF Export ──
+  async function exportPDF() {
+    // Filtra presenze per cantiere e azienda
+    let filtered = [...presences];
+
+    if (pdfSiteId) {
+      filtered = filtered.filter((p) => String(p.siteId) === pdfSiteId);
+    }
+
+    if (pdfCompanyId) {
+      // Trova gli employeeId che appartengono all'azienda selezionata
+      const companyEmployeeIds = new Set(
+        employees.filter((e) => String(e.companyId) === pdfCompanyId).map((e) => String(e._id))
+      );
+      filtered = filtered.filter((p) => companyEmployeeIds.has(String(p.employeeId)));
+    }
+
+    if (filtered.length === 0) {
+      alert("Nessuna presenza trovata con i filtri selezionati.");
+      return;
+    }
+
+    const { jsPDF } = await import("jspdf");
+    const { default: autoTable } = await import("jspdf-autotable");
+
+    const doc = new jsPDF("portrait");
+
+    // Nomi per header
+    const companyName = pdfCompanyId
+      ? companies.find((c) => String(c._id) === pdfCompanyId)?.name || ""
+      : "Tutte le Aziende";
+    const siteName = pdfSiteId
+      ? sites.find((s) => String(s._id) === pdfSiteId)?.name || ""
+      : "Tutti i Cantieri";
+    const formattedDate = fmtDateLong(date);
+
+    // Header azienda
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text(companyName, 105, 20, { align: "center" });
+
+    // Titolo documento
+    doc.setFontSize(13);
+    doc.text("FOGLIO PRESENZE GIORNALIERO", 105, 30, { align: "center" });
+
+    // Info
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Data: ${formattedDate}`, 14, 42);
+    doc.text(`Cantiere: ${siteName}`, 14, 48);
+
+    // Tabella
+    const tableData = filtered.map((p, i) => [
+      i + 1,
+      p.employeeName || "—",
+      p.status || "—",
+    ]);
+
+    autoTable(doc, {
+      startY: 55,
+      head: [["#", "Nome e Cognome", "Stato"]],
+      body: tableData,
+      theme: "grid",
+      headStyles: {
+        fillColor: [41, 41, 41],
+        textColor: 255,
+        fontStyle: "bold",
+        fontSize: 10,
+      },
+      bodyStyles: { fontSize: 9 },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      columnStyles: {
+        0: { cellWidth: 12, halign: "center" },
+        1: { cellWidth: 120 },
+        2: { cellWidth: 50, halign: "center" },
+      },
+    });
+
+    // Footer
+    const finalY = doc.lastAutoTable.finalY + 12;
+    const totalePresenti = filtered.filter((p) => p.status === "Presente").length;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Totale presenti: ${totalePresenti}`, 14, finalY);
+
+    doc.setFont("helvetica", "normal");
+    doc.text("Responsabile: ___________________________", 14, finalY + 12);
+
+    // Timestamp piccolo in basso
+    doc.setFontSize(7);
+    doc.setTextColor(150);
+    doc.text(
+      `Generato il ${new Date().toLocaleString("it-IT")}`,
+      105,
+      doc.internal.pageSize.height - 10,
+      { align: "center" }
+    );
+
+    // Salva
+    const dateStr = date.replace(/-/g, "");
+    doc.save(`presenze_${dateStr}_${siteName.replace(/\s+/g, "_")}.pdf`);
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
       <div className="max-w-6xl mx-auto">
@@ -182,6 +291,46 @@ export default function PresenzePage() {
           >
             ⊕ Aggiungi Rapportino
           </button>
+        </div>
+
+        {/* Sezione Stampa PDF */}
+        <div className="bg-white rounded-xl shadow p-4 mb-4">
+          <h2 className="text-sm font-semibold text-gray-700 mb-3">🖨️ Stampa PDF Presenze del Giorno</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Cantiere</label>
+              <select
+                value={pdfSiteId}
+                onChange={(e) => setPdfSiteId(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              >
+                <option value="">Tutti i cantieri</option>
+                {sites.map((s) => (
+                  <option key={s._id} value={s._id}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Azienda / Ditta</label>
+              <select
+                value={pdfCompanyId}
+                onChange={(e) => setPdfCompanyId(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              >
+                <option value="">Tutte le aziende</option>
+                {companies.map((c) => (
+                  <option key={c._id} value={c._id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={exportPDF}
+              disabled={presences.length === 0}
+              className="bg-black text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-40 transition h-[42px]"
+            >
+              📄 Stampa PDF
+            </button>
+          </div>
         </div>
 
         {/* Form aggiunta / modifica presenza */}
