@@ -4,6 +4,7 @@ import connectDB from "@/lib/mongodb";
 import Presence from "@/models/Presence";
 import Employee from "@/models/Employee";
 import Site from "@/models/Site";
+import Company from "@/models/Company";
 
 // GET /api/presences?date=YYYY-MM-DD&siteId=xxx
 export async function GET(req) {
@@ -79,10 +80,15 @@ export async function POST(req) {
     if (!employee) return Response.json({ error: "Dipendente non trovato" }, { status: 404 });
     if (!site) return Response.json({ error: "Cantiere non trovato" }, { status: 404 });
 
+    // Recupera nome azienda del dipendente
+    const company = await Company.findById(employee.companyId);
+    const companyName = company ? company.name : "";
+
     const presence = await Presence.create({
-      companyId: session.user.companyId,
+      companyId: employee.companyId,
       employeeId,
       employeeName: employee.fullName,
+      companyName,
       siteId,
       siteName: site.name,
       date: new Date(date + "T00:00:00.000Z"),

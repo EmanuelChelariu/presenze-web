@@ -10,6 +10,8 @@ const PresenceSchema = new mongoose.Schema(
     siteId: { type: mongoose.Schema.Types.ObjectId, ref: "Site", required: true },
     siteName: { type: String }, // snapshot
 
+    companyName: { type: String, default: "" }, // snapshot nome azienda del dipendente
+
     date: { type: Date, required: true }, // inizio giorno
 
     status: {

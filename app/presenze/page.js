@@ -77,6 +77,12 @@ export default function PresenzePage() {
     ? employees // in edit mode mostra tutti
     : employees.filter((e) => !presentIds.has(String(e._id)));
 
+  // Azienda auto dal dipendente selezionato (companyId è populated come {_id, name})
+  const selectedEmployee = form.employeeId
+    ? employees.find((e) => String(e._id) === form.employeeId)
+    : null;
+  const selectedCompanyName = selectedEmployee?.companyId?.name || "";
+
   function resetForm(keepOpen = false) {
     setForm((prev) => ({ employeeId: "", siteId: prev.siteId, status: "Presente", overtimeHours: "" }));
     setFormError("");
@@ -152,11 +158,16 @@ export default function PresenzePage() {
     }
 
     if (pdfCompanyId) {
-      // Trova gli employeeId che appartengono all'azienda selezionata
+      // Filtra direttamente per companyId sulla presenza,
+      // oppure cross-reference con employees (companyId è populated come {_id, name})
       const companyEmployeeIds = new Set(
-        employees.filter((e) => String(e.companyId) === pdfCompanyId).map((e) => String(e._id))
+        employees
+          .filter((e) => String(e.companyId?._id || e.companyId) === pdfCompanyId)
+          .map((e) => String(e._id))
       );
-      filtered = filtered.filter((p) => companyEmployeeIds.has(String(p.employeeId)));
+      filtered = filtered.filter(
+        (p) => String(p.companyId) === pdfCompanyId || companyEmployeeIds.has(String(p.employeeId))
+      );
     }
 
     if (filtered.length === 0) {
@@ -339,7 +350,7 @@ export default function PresenzePage() {
             <h2 className="text-sm font-semibold text-gray-700 mb-3">
               {editId ? "✏️ Modifica Presenza" : "Nuova Presenza"}
             </h2>
-            <div className={`grid grid-cols-1 sm:grid-cols-2 ${editId ? "lg:grid-cols-5" : "lg:grid-cols-4"} gap-3`}>
+            <div className={`grid grid-cols-1 sm:grid-cols-2 ${editId ? "lg:grid-cols-6" : "lg:grid-cols-5"} gap-3`}>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Dipendente *</label>
                 <select
@@ -353,6 +364,16 @@ export default function PresenzePage() {
                     <option key={e._id} value={e._id}>{e.firstName} {e.lastName}</option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Azienda</label>
+                <input
+                  type="text"
+                  readOnly
+                  value={selectedCompanyName}
+                  placeholder="Seleziona dipendente..."
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-600 cursor-not-allowed"
+                />
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Cantiere *</label>
@@ -451,6 +472,7 @@ export default function PresenzePage() {
                   <tr className="border-b bg-gray-50 text-xs font-medium text-gray-600">
                     <th className="text-left px-3 py-2 w-8">#</th>
                     <th className="text-left px-3 py-2">Nome e Cognome</th>
+                    <th className="text-left px-3 py-2">Azienda</th>
                     <th className="text-left px-3 py-2">Cantiere</th>
                     <th className="text-left px-3 py-2">Stato</th>
                     <th className="text-center px-3 py-2">Str.</th>
@@ -467,6 +489,7 @@ export default function PresenzePage() {
                     >
                       <td className="px-3 py-2.5 text-xs text-gray-400">{i + 1}</td>
                       <td className="px-3 py-2.5 font-medium text-gray-900">{p.employeeName}</td>
+                      <td className="px-3 py-2.5 text-sm text-gray-600">{p.companyName || "—"}</td>
                       <td className="px-3 py-2.5 text-sm text-gray-600">{p.siteName || "—"}</td>
                       <td className="px-3 py-2.5">
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[p.status] || "bg-gray-100 text-gray-600"}`}>
