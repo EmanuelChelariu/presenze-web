@@ -72,9 +72,10 @@ export default function PresenzePage() {
 
   // Dipendenti già presenti oggi (per escluderli dal form di aggiunta)
   const presentIds = new Set(presences.map((p) => String(p.employeeId)));
+  const sortedByFirstName = [...employees].sort((a, b) => (a.firstName || "").localeCompare(b.firstName || ""));
   const availableEmployees = editId
-    ? employees // in edit mode mostra tutti
-    : employees.filter((e) => !presentIds.has(String(e._id)));
+    ? sortedByFirstName // in edit mode mostra tutti
+    : sortedByFirstName.filter((e) => !presentIds.has(String(e._id)));
 
   // Azienda auto dal dipendente selezionato (companyId è populated come {_id, name})
   const selectedEmployee = form.employeeId
@@ -161,6 +162,12 @@ export default function PresenzePage() {
       return;
     }
 
+    // Mappa employeeId -> "Cognome Nome" per PDF
+    const nameMap = {};
+    for (const e of employees) {
+      nameMap[String(e._id)] = `${e.lastName} ${e.firstName}`;
+    }
+
     // Raggruppa per azienda (companyName)
     const grouped = {};
     for (const p of filtered) {
@@ -203,10 +210,10 @@ export default function PresenzePage() {
       doc.text(`Data: ${formattedDate}`, 14, 42);
       doc.text(`Cantiere: ${siteName}`, 14, 48);
 
-      // Tabella
+      // Tabella (cognome prima del nome nel PDF)
       const tableData = rows.map((p, i) => [
         i + 1,
-        p.employeeName || "—",
+        nameMap[String(p.employeeId)] || p.employeeName || "—",
         p.status || "—",
       ]);
 
@@ -474,7 +481,7 @@ export default function PresenzePage() {
                   {presences.map((p, i) => (
                     <tr
                       key={p._id}
-                      className={`border-b last:border-0 hover:bg-gray-50 ${editId === p._id ? "bg-yellow-50" : i % 2 !== 0 ? "bg-gray-50/50" : ""}`}
+                      className={`border-b last:border-0 hover:bg-blue-50 transition ${editId === p._id ? "bg-yellow-50" : i % 2 !== 0 ? "bg-gray-50/50" : ""}`}
                     >
                       <td className="px-3 py-2.5 text-xs text-gray-400">{i + 1}</td>
                       <td className="px-3 py-2.5 font-medium text-gray-900">{p.employeeName}</td>

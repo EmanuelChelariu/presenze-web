@@ -95,29 +95,41 @@ export default function TotaliPage() {
   async function exportPanorama() {
     setExporting(true);
     try {
-      // Fetch tutte le presenze del mese
-      const res = await fetch(`/api/totali/panorama?month=${month}`);
+      // Fetch tutte le presenze del mese + dipendenti per nomi cognome/nome
+      const [res, empRes] = await Promise.all([
+        fetch(`/api/totali/panorama?month=${month}`),
+        fetch("/api/employees"),
+      ]);
       const data = await res.json();
+      const empList = await empRes.json();
       if (!Array.isArray(data) || data.length === 0) {
         alert("Nessuna presenza trovata per questo mese.");
         setExporting(false);
         return;
       }
 
+      // Mappa employeeId -> "Cognome Nome"
+      const nameMap = {};
+      if (Array.isArray(empList)) {
+        for (const e of empList) {
+          nameMap[String(e._id)] = `${e.lastName} ${e.firstName}`;
+        }
+      }
+
       // Numero giorni del mese
       const daysInMonth = new Date(y, m, 0).getDate();
 
-      // Raggruppa per dipendente: { employeeName -> { day -> { status, overtimeHours } } }
+      // Raggruppa per dipendente con "Cognome Nome"
       const empMap = {};
       for (const p of data) {
-        const name = p.employeeName || "—";
+        const name = nameMap[String(p.employeeId)] || p.employeeName || "—";
         if (!empMap[name]) empMap[name] = { days: {}, totalOT: 0 };
         const day = new Date(p.date).getUTCDate();
         empMap[name].days[day] = p.status;
         empMap[name].totalOT += p.overtimeHours || 0;
       }
 
-      // Ordina dipendenti alfabeticamente
+      // Ordina dipendenti per cognome
       const empNames = Object.keys(empMap).sort((a, b) => a.localeCompare(b));
 
       // Abbreviazioni stato

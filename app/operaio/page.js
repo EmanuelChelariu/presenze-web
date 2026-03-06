@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -98,12 +99,21 @@ export default function OperaioPage() {
     <div className="min-h-screen bg-slate-50 p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
 
-        {/* Header */}
-        <div className="mb-6">
+        {/* Header con logo */}
+        <div className="mb-8 text-center">
+          <div className="inline-block bg-black rounded-2xl p-4 shadow-lg mb-4">
+            <Image
+              src="/logo.png"
+              alt="FC Costruzioni"
+              width={80}
+              height={80}
+              className="rounded-lg"
+            />
+          </div>
           <h1 className="text-2xl font-bold text-gray-900">
             Ciao, {session.user.name?.split(" ")[0]}
           </h1>
-          <p className="text-gray-500 text-sm mt-1">{session.user.companyName}</p>
+          <p className="text-gray-400 text-sm mt-1">FC Costruzioni SRL</p>
         </div>
 
         {/* Errore collegamento */}
