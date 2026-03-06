@@ -44,6 +44,9 @@ export default function TotaliPage() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
+  // PDF panorama
+  const [exporting, setExporting] = useState(false);
+
   // Dettaglio dipendente selezionato
   const [selectedEmp, setSelectedEmp] = useState(null); // { _id, employeeName }
   const [detail, setDetail] = useState([]);
@@ -85,6 +88,176 @@ export default function TotaliPage() {
   const [y, m] = month.split("-").map(Number);
   const meseLabel = `${MESI[m - 1]} ${y}`;
 
+  // Giorni della settimana abbreviati (italiano)
+  const GIORNI_SETT = ["D", "L", "M", "M", "G", "V", "S"];
+
+  // ── PDF Panorama Mensile ──
+  async function exportPanorama() {
+    setExporting(true);
+    try {
+      // Fetch tutte le presenze del mese
+      const res = await fetch(`/api/totali/panorama?month=${month}`);
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        alert("Nessuna presenza trovata per questo mese.");
+        setExporting(false);
+        return;
+      }
+
+      // Numero giorni del mese
+      const daysInMonth = new Date(y, m, 0).getDate();
+
+      // Raggruppa per dipendente: { employeeName -> { day -> { status, overtimeHours } } }
+      const empMap = {};
+      for (const p of data) {
+        const name = p.employeeName || "—";
+        if (!empMap[name]) empMap[name] = { days: {}, totalOT: 0 };
+        const day = new Date(p.date).getUTCDate();
+        empMap[name].days[day] = p.status;
+        empMap[name].totalOT += p.overtimeHours || 0;
+      }
+
+      // Ordina dipendenti alfabeticamente
+      const empNames = Object.keys(empMap).sort((a, b) => a.localeCompare(b));
+
+      // Abbreviazioni stato
+      const STATUS_LETTER = { Presente: "P", Assente: "A", Malattia: "M", Ferie: "F", Infortunio: "I" };
+      // Colori sfondo RGB per le celle
+      const STATUS_BG = {
+        P: [200, 235, 200],  // verde chiaro
+        A: [255, 200, 200],  // rosso chiaro
+        M: [255, 240, 190],  // giallo chiaro
+        F: [200, 220, 255],  // blu chiaro
+        I: [255, 220, 190],  // arancione chiaro
+      };
+
+      const { jsPDF } = await import("jspdf");
+      const { default: autoTable } = await import("jspdf-autotable");
+
+      const doc = new jsPDF("landscape");
+      const pageW = doc.internal.pageSize.width;
+
+      // Header
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(0);
+      doc.text("Registro Presenze (Panorama) — FC COSTRUZIONI SRL", 14, 14);
+
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Mese: ${meseLabel}`, 14, 20);
+
+      // Generato il (top right)
+      const now = new Date().toLocaleString("it-IT");
+      doc.setFontSize(7);
+      doc.setTextColor(100);
+      doc.text(`Generato il: ${now}`, pageW - 14, 14, { align: "right" });
+
+      // Legenda
+      doc.setFontSize(7);
+      doc.setTextColor(0);
+      const legendY = 25;
+      doc.text("Legenda:", 14, legendY);
+      const legendItems = [
+        { letter: "P", label: "Presente", bg: STATUS_BG.P },
+        { letter: "A", label: "Assente", bg: STATUS_BG.A },
+        { letter: "M", label: "Malattia", bg: STATUS_BG.M },
+        { letter: "F", label: "Ferie", bg: STATUS_BG.F },
+        { letter: "I", label: "Infortunio", bg: STATUS_BG.I },
+      ];
+      let lx = 32;
+      legendItems.forEach((item) => {
+        doc.setFillColor(...item.bg);
+        doc.rect(lx, legendY - 3, 4, 4, "F");
+        doc.text(`${item.letter} = ${item.label}`, lx + 6, legendY);
+        lx += 30;
+      });
+
+      // Costruisci header tabella: Nome | G1 | G2 | ... | G31 | Giorni | Str.
+      // Due righe di header: riga 1 = giorno settimana, riga 2 = numero giorno
+      const dayHeaders = [];
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dow = new Date(y, m - 1, d).getDay(); // 0=dom
+        dayHeaders.push(`${GIORNI_SETT[dow]}\n${d}`);
+      }
+      const head = [["Nome e Cognome", ...dayHeaders, "Giorni", "Str."]];
+
+      // Costruisci righe
+      const bodyRows = empNames.map((name) => {
+        const emp = empMap[name];
+        const cells = [name];
+        let giorniPresente = 0;
+        for (let d = 1; d <= daysInMonth; d++) {
+          const status = emp.days[d];
+          if (status) {
+            const letter = STATUS_LETTER[status] || "?";
+            cells.push(letter);
+            if (status === "Presente") giorniPresente++;
+          } else {
+            cells.push("");
+          }
+        }
+        cells.push(String(giorniPresente));
+        cells.push(String(emp.totalOT));
+        return cells;
+      });
+
+      // Calcola larghezze colonne
+      const nameColW = 42;
+      const totColW = 11;
+      const availW = pageW - 28 - nameColW - totColW * 2; // margini 14+14
+      const dayColW = Math.floor((availW / daysInMonth) * 10) / 10;
+
+      const columnStyles = { 0: { cellWidth: nameColW, halign: "left", fontSize: 6 } };
+      for (let d = 1; d <= daysInMonth; d++) {
+        columnStyles[d] = { cellWidth: dayColW, halign: "center", fontSize: 6 };
+      }
+      columnStyles[daysInMonth + 1] = { cellWidth: totColW, halign: "center", fontStyle: "bold", fontSize: 6 };
+      columnStyles[daysInMonth + 2] = { cellWidth: totColW, halign: "center", fontSize: 6 };
+
+      autoTable(doc, {
+        startY: 30,
+        head,
+        body: bodyRows,
+        theme: "grid",
+        styles: {
+          fontSize: 5.5,
+          cellPadding: 1.2,
+          lineWidth: 0.1,
+          lineColor: [180, 180, 180],
+          overflow: "hidden",
+        },
+        headStyles: {
+          fillColor: [230, 230, 230],
+          textColor: [40, 40, 40],
+          fontStyle: "bold",
+          fontSize: 5.5,
+          halign: "center",
+          valign: "middle",
+          cellPadding: 1,
+        },
+        columnStyles,
+        alternateRowStyles: { fillColor: [250, 250, 250] },
+        // Colore celle in base allo stato
+        didParseCell: function (data) {
+          if (data.section === "body" && data.column.index >= 1 && data.column.index <= daysInMonth) {
+            const val = data.cell.raw;
+            if (val && STATUS_BG[val]) {
+              data.cell.styles.fillColor = STATUS_BG[val];
+            }
+          }
+        },
+      });
+
+      // Salva
+      doc.save(`panorama_presenze_${MESI[m - 1]}_${y}.pdf`);
+    } catch (err) {
+      console.error("Errore export panorama:", err);
+      alert("Errore durante la generazione del PDF.");
+    }
+    setExporting(false);
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
       <div className="max-w-5xl mx-auto">
@@ -121,6 +294,19 @@ export default function TotaliPage() {
             </button>
           </div>
         </div>
+
+        {/* Pulsante Stampa Panorama */}
+        {rows.length > 0 && (
+          <div className="mb-4">
+            <button
+              onClick={exportPanorama}
+              disabled={exporting}
+              className="bg-black text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50 transition"
+            >
+              {exporting ? "Generazione PDF..." : "📄 Stampa PDF Panorama Mensile"}
+            </button>
+          </div>
+        )}
 
         {/* Tabella riassuntiva */}
         {loading ? (
