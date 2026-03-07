@@ -317,7 +317,7 @@ export default function PresenzePage() {
         </div>
 
         {/* Pulsanti azione */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-4">
           <button
             onClick={() => { if (editId) resetForm(); else setShowForm(!showForm); }}
             className="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-black hover:text-black transition text-center"
@@ -329,6 +329,12 @@ export default function PresenzePage() {
             className="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-black hover:text-black transition text-center"
           >
             QR Code
+          </button>
+          <button
+            onClick={() => router.push("/ddt")}
+            className="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-black hover:text-black transition text-center"
+          >
+            DDT
           </button>
           <button
             onClick={() => router.push("/rimborsi")}
