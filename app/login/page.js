@@ -23,69 +23,68 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* Colonna sinistra — nera con logo */}
-      <div className="hidden md:flex w-1/2 bg-black flex-col items-center justify-center p-12 gap-6">
-        <Image src="/logo.png" alt="FC Costruzioni" width={200} height={200} />
-        <p className="text-gray-500 text-sm text-center">
-          Gestione presenze e contabilità cantieri
-        </p>
-      </div>
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center px-4 relative overflow-hidden">
 
-      {/* Colonna destra — form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-slate-50">
-        <div className="w-full max-w-sm">
+      {/* Sfondo decorativo sottile */}
+      <div className="absolute inset-0 opacity-[0.03]" style={{
+        backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+        backgroundSize: "40px 40px",
+      }} />
 
-          {/* Logo su mobile */}
-          <div className="flex justify-center mb-8 md:hidden">
-            <div className="bg-black rounded-2xl p-5">
-              <Image src="/logo.png" alt="FC Costruzioni" width={80} height={80} />
-            </div>
+      {/* Contenuto */}
+      <div className="relative z-10 w-full max-w-sm flex flex-col items-center">
+
+        {/* Logo */}
+        <div className="mb-10">
+          <Image src="/logo.png" alt="FC Costruzioni" width={120} height={120} className="opacity-90" />
+        </div>
+
+        {/* Sottotitolo */}
+        <p className="text-gray-500 text-xs tracking-[0.2em] uppercase mb-8">Area riservata</p>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="w-full space-y-4">
+          <div>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-white/30 focus:bg-white/10 transition text-sm"
+              placeholder="Email"
+            />
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">Accedi</h1>
-          <p className="text-gray-500 text-sm mb-8">FC Costruzioni SRL — Area riservata</p>
+          <div>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-white/30 focus:bg-white/10 transition text-sm"
+              placeholder="Password"
+            />
+          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-black transition"
-                placeholder="nome@azienda.com"
-              />
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
+              <p className="text-red-400 text-sm text-center">{error}</p>
             </div>
+          )}
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-black transition"
-                placeholder="••••••••"
-              />
-            </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-white text-black py-3.5 rounded-xl font-semibold hover:bg-gray-100 disabled:opacity-50 transition text-sm"
+          >
+            {loading ? "Accesso in corso..." : "Accedi"}
+          </button>
+        </form>
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-                <p className="text-red-600 text-sm">{error}</p>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-black text-white py-3 rounded-xl font-semibold hover:bg-gray-800 disabled:opacity-50 transition"
-            >
-              {loading ? "Accesso in corso..." : "Accedi"}
-            </button>
-          </form>
-        </div>
+        {/* Footer */}
+        <p className="text-gray-700 text-[10px] mt-12 tracking-wider">
+          FC COSTRUZIONI SRL
+        </p>
       </div>
     </div>
   );

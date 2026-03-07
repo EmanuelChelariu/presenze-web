@@ -1,14 +1,6 @@
 @import "tailwindcss";
 
-:root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-}
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* Fix placeholder colore — visibile su tutti i browser */
 input::placeholder,
@@ -17,9 +9,84 @@ textarea::placeholder {
   opacity: 1;
 }
 
-/* Input text sempre scuro */
+/* Input text — chiaro in light, chiaro in dark */
 input,
 select,
 textarea {
   color: #0f172a;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  color: #f1f5f9;
+  background-color: #1e293b;
+  border-color: #334155;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Card e shadow in dark mode */
+.dark .bg-white {
+  background-color: #1e293b;
+}
+
+.dark .shadow {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* Tabella hover dark */
+.dark .hover\:bg-blue-50:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Bordi dark */
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: #334155;
+}
+
+.dark .border-b {
+  border-color: #334155;
+}
+
+/* Testi dark override */
+.dark .text-gray-900 {
+  color: #f1f5f9;
+}
+
+.dark .text-gray-800 {
+  color: #e2e8f0;
+}
+
+.dark .text-gray-700 {
+  color: #cbd5e1;
+}
+
+.dark .text-gray-600 {
+  color: #94a3b8;
+}
+
+.dark .text-gray-500 {
+  color: #64748b;
+}
+
+.dark .text-gray-400 {
+  color: #475569;
+}
+
+/* Sfondi dark override */
+.dark .bg-gray-50 {
+  background-color: #0f172a;
+}
+
+.dark .bg-gray-100 {
+  background-color: #1e293b;
+}
+
+.dark .bg-gray-50\/50 {
+  background-color: rgba(30, 41, 59, 0.5);
 }
