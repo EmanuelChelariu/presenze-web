@@ -316,66 +316,48 @@ export default function PresenzePage() {
           />
         </div>
 
-        {/* Pulsanti azione */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-4">
+        {/* Azione principale + scorciatoie */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-4">
           <button
             onClick={() => { if (editId) resetForm(); else setShowForm(!showForm); }}
-            className="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-black hover:text-black transition text-center"
+            className={`flex-1 rounded-xl px-5 py-3.5 text-sm font-semibold transition text-center ${
+              editId
+                ? "bg-yellow-500 text-white hover:bg-yellow-600"
+                : showForm
+                ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                : "bg-black text-white hover:bg-gray-800 shadow-md"
+            }`}
           >
-            {editId ? "✕ Annulla Modifica" : showForm ? "✕ Chiudi Form" : "⊕ Nuova Presenza"}
+            {editId ? "✕ Annulla Modifica" : showForm ? "✕ Chiudi Form" : "+ Nuova Presenza"}
           </button>
           <button
             onClick={() => setShowScanner(true)}
-            className="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-black hover:text-black transition text-center"
+            className="sm:w-auto rounded-xl px-5 py-3.5 text-sm font-medium bg-white border-2 border-gray-200 text-gray-700 hover:border-black hover:text-black transition text-center"
           >
             QR Code
           </button>
+        </div>
+
+        {/* Link rapidi */}
+        <div className="flex flex-wrap gap-2 mb-4">
           <button
             onClick={() => router.push("/ddt")}
-            className="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-black hover:text-black transition text-center"
+            className="px-4 py-2 rounded-lg text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800 transition"
           >
             DDT
           </button>
           <button
             onClick={() => router.push("/rimborsi")}
-            className="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-black hover:text-black transition text-center"
+            className="px-4 py-2 rounded-lg text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800 transition"
           >
-            ⊕ Rimborso/Tratt.
+            Rimborso/Tratt.
           </button>
           <button
             onClick={() => router.push("/rapportini")}
-            className="bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-black hover:text-black transition text-center"
+            className="px-4 py-2 rounded-lg text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800 transition"
           >
-            ⊕ Aggiungi Rapportino
+            Rapportino
           </button>
-        </div>
-
-        {/* Sezione Stampa PDF */}
-        <div className="bg-white rounded-xl shadow p-4 mb-4">
-          <h2 className="text-sm font-semibold text-gray-700 mb-3">🖨️ Stampa PDF Presenze del Giorno</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">Cantiere</label>
-              <select
-                value={pdfSiteId}
-                onChange={(e) => setPdfSiteId(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-              >
-                <option value="">Tutti i cantieri</option>
-                {sites.map((s) => (
-                  <option key={s._id} value={s._id}>{s.name}</option>
-                ))}
-              </select>
-            </div>
-            <button
-              onClick={exportPDF}
-              disabled={presences.length === 0}
-              className="bg-black text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-40 transition h-[42px]"
-            >
-              📄 Stampa PDF
-            </button>
-          </div>
-          <p className="text-xs text-gray-400 mt-2">Genera una pagina per ogni ditta presente nel cantiere</p>
         </div>
 
         {/* Form aggiunta / modifica presenza */}
@@ -555,6 +537,34 @@ export default function PresenzePage() {
               </table>
             </div>
           )}
+        </div>
+
+        {/* Sezione Stampa PDF — in fondo alla pagina */}
+        <div className="bg-white rounded-xl shadow p-4 mt-4">
+          <h2 className="text-sm font-semibold text-gray-700 mb-3">Stampa PDF Presenze del Giorno</h2>
+          <div className="flex flex-col sm:flex-row gap-3 items-end">
+            <div className="flex-1 w-full">
+              <label className="block text-xs text-gray-500 mb-1">Cantiere</label>
+              <select
+                value={pdfSiteId}
+                onChange={(e) => setPdfSiteId(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              >
+                <option value="">Tutti i cantieri</option>
+                {sites.map((s) => (
+                  <option key={s._id} value={s._id}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={exportPDF}
+              disabled={presences.length === 0}
+              className="bg-black text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-40 transition whitespace-nowrap"
+            >
+              Stampa PDF
+            </button>
+          </div>
+          <p className="text-xs text-gray-400 mt-2">Genera una pagina per ogni ditta presente nel cantiere</p>
         </div>
 
       </div>
