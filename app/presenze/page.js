@@ -44,6 +44,8 @@ export default function PresenzePage() {
 
   // QR Scanner
   const [showScanner, setShowScanner] = useState(false);
+  const [qrMemory, setQrMemory] = useState(null); // Ricorda cantiere/stato dopo primo scan
+  const [qrSuccess, setQrSuccess] = useState(""); // Feedback successo QR
 
   // Form nuovo inserimento
   const [showForm, setShowForm] = useState(false);
@@ -144,6 +146,12 @@ export default function PresenzePage() {
       setSaving(false);
       if (!res.ok) { setFormError(data.error || "Errore"); return; }
       setPresences((prev) => [...prev, data].sort((a, b) => (a.employeeName || "").localeCompare(b.employeeName || "")));
+
+      // Salva i valori del form per i prossimi QR scan
+      if (form.siteId) {
+        setQrMemory({ siteId: form.siteId, status: form.status, overtimeHours: form.overtimeHours });
+      }
+
       resetForm(true);
     }
   }
@@ -154,20 +162,54 @@ export default function PresenzePage() {
     setPresences((prev) => prev.filter((p) => p._id !== id));
   }
 
-  // QR Scan handler
-  function handleQRScan(decodedText) {
+  // QR Scan handler — dal secondo scan in poi auto-compila e auto-invia
+  async function handleQRScan(decodedText) {
     const cleanId = (decodedText || "").trim();
     const found = employees.find((e) => String(e._id) === cleanId);
     if (!found) {
-      alert("Dipendente non trovato. Il QR code potrebbe non essere valido.");
-      setShowScanner(false);
+      setQrSuccess("❌ QR non valido");
+      setTimeout(() => setQrSuccess(""), 2000);
       return;
     }
+    const empName = `${found.firstName} ${found.lastName}`;
     if (presentIds.has(cleanId)) {
-      alert(`${found.firstName} ${found.lastName} ha già una presenza inserita per oggi.`);
-      setShowScanner(false);
+      setQrSuccess(`⚠️ ${empName} già inserito`);
+      setTimeout(() => setQrSuccess(""), 2000);
       return;
     }
+
+    // Se abbiamo un qrMemory (= non è il primo scan), auto-invia
+    if (qrMemory?.siteId) {
+      try {
+        const payload = {
+          employeeId: cleanId,
+          siteId: qrMemory.siteId,
+          status: qrMemory.status || "Presente",
+          overtimeHours: qrMemory.overtimeHours || "",
+          date,
+        };
+        const res = await fetch("/api/presences", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setPresences((prev) => [...prev, data].sort((a, b) => (a.employeeName || "").localeCompare(b.employeeName || "")));
+          setQrSuccess(`✅ ${empName}`);
+          setTimeout(() => setQrSuccess(""), 2000);
+        } else {
+          setQrSuccess(`❌ ${data.error || "Errore"}`);
+          setTimeout(() => setQrSuccess(""), 3000);
+        }
+      } catch {
+        setQrSuccess("❌ Errore di connessione");
+        setTimeout(() => setQrSuccess(""), 3000);
+      }
+      return; // Scanner resta aperto
+    }
+
+    // Primo scan — apri il form per selezionare cantiere
     setForm((prev) => ({ ...prev, employeeId: cleanId }));
     setShowForm(true);
     setEditId(null);
@@ -572,9 +614,31 @@ export default function PresenzePage() {
       {/* QR Scanner Modal */}
       <QRScannerModal
         isOpen={showScanner}
-        onClose={() => setShowScanner(false)}
+        onClose={() => { setShowScanner(false); setQrSuccess(""); }}
         onScan={handleQRScan}
       />
+
+      {/* Feedback QR — toast sovrapposto allo scanner */}
+      {showScanner && qrSuccess && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-xl shadow-lg text-white text-sm font-semibold animate-bounce"
+          style={{ backgroundColor: qrSuccess.startsWith("✅") ? "#16a34a" : qrSuccess.startsWith("⚠") ? "#d97706" : "#dc2626" }}
+        >
+          {qrSuccess}
+        </div>
+      )}
+
+      {/* Info modalità rapida QR */}
+      {showScanner && qrMemory && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] bg-black/80 text-white text-xs px-4 py-2 rounded-full flex items-center gap-3">
+          <span>⚡ Modalità rapida: {sites.find(s => String(s._id) === qrMemory.siteId)?.name || "—"}</span>
+          <button
+            onClick={() => { setQrMemory(null); }}
+            className="text-red-300 hover:text-red-100 underline"
+          >
+            Reset
+          </button>
+        </div>
+      )}
     </div>
   );
 }
