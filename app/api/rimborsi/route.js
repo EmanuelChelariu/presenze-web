@@ -28,7 +28,7 @@ export async function GET(req) {
     return Response.json(rimborsi);
   } catch (err) {
     console.error("[API] GET /api/rimborsi error:", err);
-    return Response.json({ error: err.message || "Errore interno del server" }, { status: 500 });
+    return Response.json({ error: "Errore interno del server" }, { status: 500 });
   }
 }
 
@@ -66,6 +66,6 @@ export async function POST(req) {
     return Response.json(rimborso, { status: 201 });
   } catch (err) {
     console.error("[API] POST /api/rimborsi error:", err);
-    return Response.json({ error: err.message || "Errore interno del server" }, { status: 500 });
+    return Response.json({ error: "Errore interno del server" }, { status: 500 });
   }
 }

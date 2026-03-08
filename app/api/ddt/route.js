@@ -29,7 +29,7 @@ export async function GET(req) {
     return Response.json(ddts);
   } catch (err) {
     console.error("[API] GET /api/ddt error:", err);
-    return Response.json({ error: err.message || "Errore interno" }, { status: 500 });
+    return Response.json({ error: "Errore interno" }, { status: 500 });
   }
 }
 
@@ -83,6 +83,6 @@ export async function POST(req) {
     return Response.json(ddt, { status: 201 });
   } catch (err) {
     console.error("[API] POST /api/ddt error:", err);
-    return Response.json({ error: err.message || "Errore durante l'upload" }, { status: 500 });
+    return Response.json({ error: "Errore durante l'upload" }, { status: 500 });
   }
 }

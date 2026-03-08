@@ -18,7 +18,7 @@ export async function GET(req, context) {
     return Response.json(user);
   } catch (err) {
     console.error("[API] GET /api/users/[id] error:", err);
-    return Response.json({ error: err.message || "Errore interno del server" }, { status: 500 });
+    return Response.json({ error: "Errore interno del server" }, { status: 500 });
   }
 }
 
@@ -74,7 +74,7 @@ export async function PUT(req, context) {
     return Response.json(user);
   } catch (err) {
     console.error("[API] PUT /api/users/[id] error:", err);
-    return Response.json({ error: err.message || "Errore interno del server" }, { status: 500 });
+    return Response.json({ error: "Errore interno del server" }, { status: 500 });
   }
 }
 
@@ -97,6 +97,6 @@ export async function DELETE(req, context) {
     return Response.json({ ok: true });
   } catch (err) {
     console.error("[API] DELETE /api/users/[id] error:", err);
-    return Response.json({ error: err.message || "Errore interno del server" }, { status: 500 });
+    return Response.json({ error: "Errore interno del server" }, { status: 500 });
   }
 }

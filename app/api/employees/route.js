@@ -20,7 +20,7 @@ export async function GET() {
     return Response.json(employees);
   } catch (err) {
     console.error("[API] GET /api/employees error:", err);
-    return Response.json({ error: err.message || "Errore interno del server" }, { status: 500 });
+    return Response.json({ error: "Errore interno del server" }, { status: 500 });
   }
 }
 
@@ -64,6 +64,6 @@ export async function POST(req) {
     return Response.json(employee, { status: 201 });
   } catch (err) {
     console.error("[API] POST /api/employees error:", err);
-    return Response.json({ error: err.message || "Errore interno del server" }, { status: 500 });
+    return Response.json({ error: "Errore interno del server" }, { status: 500 });
   }
 }

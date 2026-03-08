@@ -33,6 +33,6 @@ export async function DELETE(req, context) {
     return Response.json({ ok: true });
   } catch (err) {
     console.error("[API] DELETE /api/ddt/[id] error:", err);
-    return Response.json({ error: err.message || "Errore interno" }, { status: 500 });
+    return Response.json({ error: "Errore interno" }, { status: 500 });
   }
 }

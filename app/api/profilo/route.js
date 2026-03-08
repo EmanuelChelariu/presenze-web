@@ -15,7 +15,7 @@ export async function GET() {
     return Response.json(user);
   } catch (err) {
     console.error("[API] GET /api/profilo error:", err);
-    return Response.json({ error: err.message || "Errore interno del server" }, { status: 500 });
+    return Response.json({ error: "Errore interno del server" }, { status: 500 });
   }
 }
 
@@ -53,6 +53,6 @@ export async function PUT(req) {
     return Response.json({ ok: true, message: "Password aggiornata con successo" });
   } catch (err) {
     console.error("[API] PUT /api/profilo error:", err);
-    return Response.json({ error: err.message || "Errore interno del server" }, { status: 500 });
+    return Response.json({ error: "Errore interno del server" }, { status: 500 });
   }
 }

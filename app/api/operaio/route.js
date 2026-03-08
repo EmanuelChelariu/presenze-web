@@ -65,6 +65,6 @@ export async function GET(req) {
     });
   } catch (err) {
     console.error("[API] GET /api/operaio error:", err);
-    return Response.json({ error: err.message || "Errore interno del server" }, { status: 500 });
+    return Response.json({ error: "Errore interno del server" }, { status: 500 });
   }
 }
