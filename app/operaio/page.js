@@ -96,7 +96,7 @@ export default function OperaioPage() {
   if (session?.user?.role !== "operaio") return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-950 p-4 md:p-8 transition-colors">
       <div className="max-w-2xl mx-auto">
 
         {/* Header con logo */}
@@ -110,15 +110,15 @@ export default function OperaioPage() {
               className="rounded-lg"
             />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Ciao, {session.user.name?.split(" ")[0]}
           </h1>
-          <p className="text-gray-400 text-sm mt-1">FC Costruzioni SRL</p>
+          <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">FC Costruzioni SRL</p>
         </div>
 
         {/* Errore collegamento */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 mb-6 text-sm">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl p-4 mb-6 text-sm">
             {error}
           </div>
         )}
@@ -131,7 +131,7 @@ export default function OperaioPage() {
             </h2>
 
             {loading ? (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
+              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-8 text-center">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600 mx-auto" />
               </div>
             ) : data?.today ? (
@@ -142,11 +142,11 @@ export default function OperaioPage() {
                   <p className="text-sm mt-2 opacity-70">Cantiere: {data.today.siteName}</p>
                 )}
                 {data.today.overtimeHours > 0 && (
-                  <p className="text-sm mt-1 opacity-70">Straordinari: {data.today.overtimeHours}h</p>
+                  <p className="text-sm mt-1 font-semibold opacity-80">⏱ Straordinari: {data.today.overtimeHours}h</p>
                 )}
               </div>
             ) : (
-              <div className="bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 p-6 text-center text-gray-500">
+              <div className="bg-gray-50 dark:bg-gray-900 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 p-6 text-center text-gray-500 dark:text-gray-400">
                 <p className="text-lg font-medium">Nessuna presenza registrata per oggi</p>
                 <p className="text-sm mt-1">La tua presenza non è ancora stata inserita</p>
               </div>
@@ -158,24 +158,24 @@ export default function OperaioPage() {
         {!error && (
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              <h2 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                 Le tue presenze
               </h2>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => changeMonth(-1)}
-                  className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500 transition"
+                  className="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-500 transition"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                   </svg>
                 </button>
-                <span className="text-sm font-medium text-gray-700 min-w-[140px] text-center capitalize">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[140px] text-center capitalize">
                   {monthLabel(month)}
                 </span>
                 <button
                   onClick={() => changeMonth(1)}
-                  className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500 transition"
+                  className="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-500 transition"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -185,53 +185,64 @@ export default function OperaioPage() {
             </div>
 
             {loading ? (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
+              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-8 text-center">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600 mx-auto" />
               </div>
             ) : data?.presences?.length > 0 ? (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-50">
+              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-800 divide-y divide-gray-50 dark:divide-gray-800">
                 {data.presences.map((p) => (
                   <div key={p._id} className="flex items-center justify-between px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <span className="text-sm text-gray-700 font-medium min-w-[100px]">
+                      <span className="text-sm text-gray-700 dark:text-gray-300 font-medium min-w-[100px]">
                         {formatDate(p.date)}
                       </span>
                       <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_BADGE[p.status] || "bg-gray-100 text-gray-600"}`}>
                         {p.status}
                       </span>
                     </div>
-                    <div className="text-right text-xs text-gray-400">
+                    <div className="text-right text-xs text-gray-400 dark:text-gray-500">
                       <span>{p.siteName}</span>
                       {p.overtimeHours > 0 && (
-                        <span className="ml-2 text-amber-600 font-medium">+{p.overtimeHours}h</span>
+                        <span className="ml-2 text-amber-600 dark:text-amber-400 font-medium">+{p.overtimeHours}h</span>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 text-center text-gray-400 text-sm">
+              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 text-center text-gray-400 dark:text-gray-500 text-sm">
                 Nessuna presenza per questo mese
               </div>
             )}
 
             {/* Riepilogo mese */}
-            {data?.presences?.length > 0 && (
-              <div className="mt-3 bg-gray-50 rounded-xl p-4 grid grid-cols-2 gap-3 text-center">
-                <div>
-                  <p className="text-xs text-gray-400">Presente</p>
-                  <p className="text-lg font-bold text-green-700">
-                    {data.presences.filter((p) => p.status === "Presente").length}
-                  </p>
+            {data?.presences?.length > 0 && (() => {
+              const totalOvertime = data.presences.reduce((sum, p) => sum + (p.overtimeHours || 0), 0);
+              return (
+                <div className={`mt-3 bg-gray-50 dark:bg-gray-900 rounded-xl p-4 grid ${totalOvertime > 0 ? "grid-cols-3" : "grid-cols-2"} gap-3 text-center`}>
+                  <div>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">Presente</p>
+                    <p className="text-lg font-bold text-green-700 dark:text-green-400">
+                      {data.presences.filter((p) => p.status === "Presente").length}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">Assente</p>
+                    <p className="text-lg font-bold text-red-600 dark:text-red-400">
+                      {data.presences.filter((p) => p.status === "Assente").length}
+                    </p>
+                  </div>
+                  {totalOvertime > 0 && (
+                    <div>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">Straordinari</p>
+                      <p className="text-lg font-bold text-amber-600 dark:text-amber-400">
+                        {totalOvertime}h
+                      </p>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <p className="text-xs text-gray-400">Assente</p>
-                  <p className="text-lg font-bold text-red-600">
-                    {data.presences.filter((p) => p.status === "Assente").length}
-                  </p>
-                </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
         )}
 

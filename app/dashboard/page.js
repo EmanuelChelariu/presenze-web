@@ -60,21 +60,21 @@ export default async function DashboardPage() {
   const roleLabel = ROLE_LABELS[role] || role;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-950 p-4 md:p-8 transition-colors">
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
                 Ciao, {session.user.name?.split(" ")[0]}
               </h1>
-              <p className="text-gray-500 mt-1">{today}</p>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">{today}</p>
             </div>
             <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium text-gray-700">{session.user.companyName}</p>
-              <span className="inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-medium bg-teal-50 text-teal-700 border border-teal-200">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{session.user.companyName}</p>
+              <span className="inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-medium bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800">
                 {roleLabel}
               </span>
             </div>
@@ -94,7 +94,7 @@ export default async function DashboardPage() {
         {/* Navigazione — sezione operativa */}
         {(isAdmin || isUfficio || isInserimento) && (
           <div className="mb-6">
-            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Operatività</h2>
+            <h2 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">Operatività</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <NavCard
                 href="/presenze"
@@ -131,7 +131,7 @@ export default async function DashboardPage() {
         {/* Navigazione — sezione contabilità */}
         {(isAdmin || isUfficio) && (
           <div className="mb-6">
-            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Contabilità</h2>
+            <h2 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">Contabilità</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <NavCard
                 href="/contabilita"
@@ -154,7 +154,7 @@ export default async function DashboardPage() {
         {/* Navigazione — sezione anagrafica */}
         {(isAdmin || isUfficio) && (
           <div className="mb-6">
-            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Anagrafica</h2>
+            <h2 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">Anagrafica</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <NavCard
                 href="/dipendenti"
@@ -192,23 +192,23 @@ export default async function DashboardPage() {
 
 function StatCard({ label, value, sub, color }) {
   const colors = {
-    teal: "border-teal-500 bg-white",
-    slate: "border-slate-400 bg-white",
-    emerald: "border-emerald-500 bg-white",
-    amber: "border-amber-500 bg-white",
+    teal: "border-teal-500 bg-white dark:bg-gray-900",
+    slate: "border-slate-400 bg-white dark:bg-gray-900",
+    emerald: "border-emerald-500 bg-white dark:bg-gray-900",
+    amber: "border-amber-500 bg-white dark:bg-gray-900",
   };
   const valueColors = {
-    teal: "text-teal-700",
-    slate: "text-slate-700",
-    emerald: "text-emerald-700",
-    amber: "text-amber-700",
+    teal: "text-teal-700 dark:text-teal-400",
+    slate: "text-slate-700 dark:text-slate-300",
+    emerald: "text-emerald-700 dark:text-emerald-400",
+    amber: "text-amber-700 dark:text-amber-400",
   };
 
   return (
-    <div className={`rounded-xl shadow-sm p-4 border-l-4 ${colors[color]}`}>
-      <p className="text-xs text-gray-400 font-medium">{label}</p>
+    <div className={`rounded-xl shadow-sm dark:shadow-none p-4 border-l-4 ${colors[color]}`}>
+      <p className="text-xs text-gray-400 dark:text-gray-500 font-medium">{label}</p>
       <p className={`text-2xl font-bold mt-1 ${valueColors[color]}`}>{value}</p>
-      <p className="text-xs text-gray-400 mt-0.5">{sub}</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{sub}</p>
     </div>
   );
 }
@@ -220,23 +220,23 @@ function NavCard({ href, title, desc, icon, accent }) {
     slate: "group-hover:bg-slate-700",
   };
   const iconBg = {
-    teal: "bg-teal-50 text-teal-600",
-    emerald: "bg-emerald-50 text-emerald-600",
-    slate: "bg-slate-100 text-slate-600",
+    teal: "bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400",
+    emerald: "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400",
+    slate: "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400",
   };
 
   return (
     <a
       href={href}
-      className="group bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 p-5 flex items-start gap-4 transition-all duration-200 relative overflow-hidden"
+      className="group bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-none hover:shadow-md dark:hover:bg-gray-800 border border-gray-100 dark:border-gray-800 p-5 flex items-start gap-4 transition-all duration-200 relative overflow-hidden"
     >
       <div className={`absolute top-0 left-0 w-1 h-full bg-transparent ${accents[accent]} transition-all duration-200`} />
       <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${iconBg[accent]}`}>
         {icon}
       </div>
       <div>
-        <p className="font-semibold text-gray-900 text-sm">{title}</p>
-        <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
+        <p className="font-semibold text-gray-900 dark:text-white text-sm">{title}</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{desc}</p>
       </div>
     </a>
   );
