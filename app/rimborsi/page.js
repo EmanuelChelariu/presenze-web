@@ -186,11 +186,12 @@ export default function RimborsiPage() {
           ) : rimborsi.length === 0 ? (
             <p className="text-center text-gray-400 py-8">Nessun rimborso per questo mese</p>
           ) : (
-            <table className="w-full table-fixed">
+            <div className="overflow-x-auto">
+            <table className="w-full table-fixed min-w-[700px]">
               <thead>
                 <tr className="border-b bg-gray-50 text-xs text-gray-500">
                   <th className="text-left px-4 py-2 w-[12%]">Data</th>
-                  <th className="text-left px-4 py-2 w-[20%]">Dipendente</th>
+                  <th className="sticky-col-head text-left px-4 py-2 w-[20%] min-w-[160px]">Dipendente</th>
                   <th className="text-left px-4 py-2 w-[16%]">Cantiere</th>
                   <th className="text-left px-4 py-2 w-[20%]">Note</th>
                   <th className="text-right px-4 py-2 w-[14%]">Importo</th>
@@ -203,7 +204,7 @@ export default function RimborsiPage() {
                     <td className="px-4 py-3 text-sm text-gray-600">
                       {new Date(r.date).toLocaleDateString("it-IT")}
                     </td>
-                    <td className="px-4 py-3 font-medium text-gray-900 truncate">{r.employeeName}</td>
+                    <td className="sticky-col px-4 py-3 font-medium text-gray-900 truncate">{r.employeeName}</td>
                     <td className="px-4 py-3 text-sm text-gray-500 truncate">{r.siteName || "—"}</td>
                     <td className="px-4 py-3 text-sm text-gray-500">
                       {editId === r._id ? (
@@ -236,6 +237,7 @@ export default function RimborsiPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       </div>

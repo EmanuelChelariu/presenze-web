@@ -186,7 +186,7 @@ export default function ContabilitaPage() {
             <table className="w-full min-w-[800px]">
               <thead>
                 <tr className="border-b bg-gray-50 text-xs font-medium text-gray-600">
-                  <th className="text-left px-4 py-3">Dipendente</th>
+                  <th className="sticky-col-head text-left px-4 py-3 min-w-[200px]">Dipendente</th>
                   <th className="text-center px-3 py-3">Giorni</th>
                   <th className="text-center px-3 py-3">Straord.</th>
                   <th className="text-right px-3 py-3">Tar. giorn.</th>
@@ -199,7 +199,7 @@ export default function ContabilitaPage() {
               <tbody>
                 {rows.map((r, i) => (
                   <tr key={r.employeeId} className={`border-b last:border-0 ${i % 2 === 0 ? "" : "bg-gray-50"}`}>
-                    <td className="px-4 py-3 font-medium text-gray-800">{r.fullName}</td>
+                    <td className="sticky-col px-4 py-3 font-medium text-gray-800">{r.fullName}</td>
                     <td className="px-3 py-3 text-center font-semibold text-green-700">{r.giorni}</td>
                     <td className="px-3 py-3 text-center text-gray-600">
                       {r.straordinari > 0 ? `${r.straordinari}h` : <span className="text-gray-300">—</span>}
@@ -220,7 +220,7 @@ export default function ContabilitaPage() {
               </tbody>
               <tfoot>
                 <tr className="border-t-2 border-gray-300 bg-blue-50 font-bold text-sm">
-                  <td className="px-4 py-3 text-gray-800">TOTALE</td>
+                  <td className="sticky-col-foot px-4 py-3 text-gray-800">TOTALE</td>
                   <td className="px-3 py-3 text-center text-green-700">{totGiorni}</td>
                   <td className="px-3 py-3 text-center text-gray-700">{totStraord > 0 ? `${totStraord}h` : "—"}</td>
                   <td className="px-3 py-3 text-right text-gray-700">{fmt(totDaily)}</td>

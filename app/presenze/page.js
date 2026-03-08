@@ -487,7 +487,7 @@ export default function PresenzePage() {
                 <thead>
                   <tr className="border-b bg-gray-50 text-xs font-medium text-gray-600">
                     <th className="text-left px-3 py-2 w-8">#</th>
-                    <th className="text-left px-3 py-2">Nome e Cognome</th>
+                    <th className="sticky-col-head text-left px-3 py-2 min-w-[180px]">Nome e Cognome</th>
                     <th className="text-left px-3 py-2">Azienda</th>
                     <th className="text-left px-3 py-2">Cantiere</th>
                     <th className="text-left px-3 py-2">Stato</th>
@@ -504,7 +504,7 @@ export default function PresenzePage() {
                       className={`border-b last:border-0 hover:bg-blue-50 transition ${editId === p._id ? "bg-yellow-50" : i % 2 !== 0 ? "bg-gray-50/50" : ""}`}
                     >
                       <td className="px-3 py-2.5 text-xs text-gray-400">{i + 1}</td>
-                      <td className="px-3 py-2.5 font-medium text-gray-900">{p.employeeName}</td>
+                      <td className="sticky-col px-3 py-2.5 font-medium text-gray-900">{p.employeeName}</td>
                       <td className="px-3 py-2.5 text-sm text-gray-600">{p.companyName || "—"}</td>
                       <td className="px-3 py-2.5 text-sm text-gray-600">{p.siteName || "—"}</td>
                       <td className="px-3 py-2.5">

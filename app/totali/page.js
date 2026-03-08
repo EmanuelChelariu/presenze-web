@@ -344,7 +344,7 @@ export default function TotaliPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b bg-gray-50">
-                      <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Dipendente</th>
+                      <th className="sticky-col-head text-left px-4 py-3 text-sm font-medium text-gray-600 min-w-[200px]">Dipendente</th>
                       <th className="text-center px-3 py-3 text-sm font-medium text-gray-500">Tot.</th>
                       <th className="text-center px-3 py-3 text-sm font-medium text-green-700">Presenti</th>
                       <th className="text-center px-3 py-3 text-sm font-medium text-red-500">Assenti</th>
@@ -365,7 +365,7 @@ export default function TotaliPage() {
                           hover:bg-blue-50/50
                         `}
                       >
-                        <td className="px-4 py-3 font-medium text-gray-800">{r.employeeName}</td>
+                        <td className="sticky-col px-4 py-3 font-medium text-gray-800">{r.employeeName}</td>
                         <td className="px-3 py-3 text-center font-semibold text-gray-700">{r.totaleGiorni}</td>
                         <td className="px-3 py-3 text-center">
                           {r.presenze > 0 ? <span className="font-semibold text-green-700">{r.presenze}</span> : <span className="text-gray-300">—</span>}
